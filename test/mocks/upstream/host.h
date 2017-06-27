@@ -118,6 +118,7 @@ public:
   MOCK_CONST_METHOD0(weight, uint32_t());
   MOCK_METHOD1(weight, void(uint32_t new_weight));
   MOCK_CONST_METHOD0(zone, const std::string&());
+  MOCK_CONST_METHOD1(getRealHost, HostSharedPtr(const LoadBalancerContext* context));
 
   testing::NiceMock<MockClusterInfo> cluster_;
   Stats::IsolatedStoreImpl stats_store_;

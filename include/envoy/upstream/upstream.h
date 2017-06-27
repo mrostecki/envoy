@@ -19,6 +19,8 @@
 namespace Envoy {
 namespace Upstream {
 
+class LoadBalancerContext;
+
 /**
  * An upstream host.
  */
@@ -94,6 +96,15 @@ public:
    * Set the current load balancing weight of the host, in the range 1-100.
    */
   virtual void weight(uint32_t new_weight) PURE;
+
+  /**
+   * @return a HostSharedPtr for the host, potentially using 'context'
+   * if not nullptr.  This indirection is useful for logical Hosts
+   * that may represent multiple back end hosts that are otherwise not
+   * explicitly managed in the cluster.  Returns nullptr if the caller should
+   * keep using this Host instead.
+   */
+  virtual HostSharedPtr getRealHost(const LoadBalancerContext* context) const PURE;
 };
 
 typedef std::shared_ptr<const Host> HostConstSharedPtr;
