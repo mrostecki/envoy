@@ -374,7 +374,7 @@ Host::CreateConnectionData ClusterManagerImpl::tcpConnForCluster(const std::stri
     throw EnvoyException(fmt::format("unknown cluster '{}'", cluster));
   }
 
-  HostConstSharedPtr logical_host = entry->second->lb_->chooseHost(nullptr);
+  HostConstSharedPtr logical_host = entry->second->chooseHost(nullptr);
   if (logical_host) {
     return logical_host->createConnection(cluster_manager.thread_local_dispatcher_);
   } else {
@@ -536,7 +536,7 @@ ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::~ClusterEntry()
 Http::ConnectionPool::Instance*
 ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::connPool(
     ResourcePriority priority, LoadBalancerContext* context) {
-  HostConstSharedPtr host = lb_->chooseHost(context);
+  HostConstSharedPtr host = chooseHost(context);
   if (!host) {
     cluster_info_->stats().upstream_cx_none_healthy_.inc();
     return nullptr;

@@ -28,11 +28,6 @@ public:
   virtual ClusterInfoConstSharedPtr info() PURE;
 
   /**
-   * @return LoadBalancer& the backing load balancer.
-   */
-  virtual LoadBalancer& loadBalancer() PURE;
-
-  /**
    * @return HostConstSharedPtr to the real host chosen by the backing load balancer.
    */
   virtual HostConstSharedPtr chooseHost(const LoadBalancerContext*) PURE;

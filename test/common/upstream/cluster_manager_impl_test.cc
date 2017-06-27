@@ -425,7 +425,7 @@ TEST_F(ClusterManagerImplTest, ShutdownOrder) {
   EXPECT_EQ(cluster.info(), cluster_manager_->get("cluster_1")->info());
   EXPECT_EQ(1UL, cluster_manager_->get("cluster_1")->hostSet().hosts().size());
   EXPECT_EQ(cluster.hosts()[0],
-            cluster_manager_->get("cluster_1")->loadBalancer().chooseHost(nullptr));
+            cluster_manager_->get("cluster_1")->chooseHost(nullptr));
 
   // Local reference, primary reference, thread local reference, host reference.
   EXPECT_EQ(4U, cluster.info().use_count());

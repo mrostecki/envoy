@@ -366,7 +366,7 @@ TEST_F(RedisConnPoolImplTest, Basic) {
   MockPoolCallbacks callbacks;
   MockClient* client = new NiceMock<MockClient>();
 
-  EXPECT_CALL(cm_.thread_local_cluster_.lb_, chooseHost(_))
+  EXPECT_CALL(cm_.thread_local_cluster_, chooseHost(_))
       .WillOnce(
           Invoke([&](const Upstream::LoadBalancerContext* context) -> Upstream::HostConstSharedPtr {
             EXPECT_EQ(context->hashKey().value(), std::hash<std::string>()("foo"));
@@ -391,7 +391,7 @@ TEST_F(RedisConnPoolImplTest, HostRemove) {
   MockClient* client1 = new NiceMock<MockClient>();
   MockClient* client2 = new NiceMock<MockClient>();
 
-  EXPECT_CALL(cm_.thread_local_cluster_.lb_, chooseHost(_)).WillOnce(Return(host1));
+  EXPECT_CALL(cm_.thread_local_cluster_, chooseHost(_)).WillOnce(Return(host1));
   EXPECT_CALL(*this, create_(Eq(host1))).WillOnce(Return(client1));
 
   MockPoolRequest active_request1;
@@ -399,7 +399,7 @@ TEST_F(RedisConnPoolImplTest, HostRemove) {
   PoolRequest* request1 = conn_pool_->makeRequest("foo", value, callbacks);
   EXPECT_EQ(&active_request1, request1);
 
-  EXPECT_CALL(cm_.thread_local_cluster_.lb_, chooseHost(_)).WillOnce(Return(host2));
+  EXPECT_CALL(cm_.thread_local_cluster_, chooseHost(_)).WillOnce(Return(host2));
   EXPECT_CALL(*this, create_(Eq(host2))).WillOnce(Return(client2));
 
   MockPoolRequest active_request2;
@@ -419,7 +419,7 @@ TEST_F(RedisConnPoolImplTest, NoHost) {
 
   RespValue value;
   MockPoolCallbacks callbacks;
-  EXPECT_CALL(cm_.thread_local_cluster_.lb_, chooseHost(_)).WillOnce(Return(nullptr));
+  EXPECT_CALL(cm_.thread_local_cluster_, chooseHost(_)).WillOnce(Return(nullptr));
   PoolRequest* request = conn_pool_->makeRequest("foo", value, callbacks);
   EXPECT_EQ(nullptr, request);
 
@@ -434,7 +434,7 @@ TEST_F(RedisConnPoolImplTest, RemoteClose) {
   MockPoolCallbacks callbacks;
   MockClient* client = new NiceMock<MockClient>();
 
-  EXPECT_CALL(cm_.thread_local_cluster_.lb_, chooseHost(_));
+  EXPECT_CALL(cm_.thread_local_cluster_, chooseHost(_));
   EXPECT_CALL(*this, create_(_)).WillOnce(Return(client));
   EXPECT_CALL(*client, makeRequest(Ref(value), Ref(callbacks))).WillOnce(Return(&active_request));
   conn_pool_->makeRequest("foo", value, callbacks);

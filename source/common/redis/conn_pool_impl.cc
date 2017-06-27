@@ -208,7 +208,7 @@ PoolRequest* InstanceImpl::ThreadLocalPool::makeRequest(const std::string& hash_
                                                         const RespValue& request,
                                                         PoolCallbacks& callbacks) {
   LbContextImpl lb_context(hash_key);
-  Upstream::HostConstSharedPtr host = cluster_->loadBalancer().chooseHost(&lb_context);
+  Upstream::HostConstSharedPtr host = cluster_->chooseHost(&lb_context);
   if (!host) {
     return nullptr;
   }
