@@ -3,6 +3,8 @@
 namespace Envoy {
 namespace Upstream {
 
+class LoadBalancerContext;
+
 /**
  * A thread local cluster instance that can be used for direct load balancing and host set
  * interactions. In general, an instance of ThreadLocalCluster can only be safely used in the
@@ -29,6 +31,11 @@ public:
    * @return LoadBalancer& the backing load balancer.
    */
   virtual LoadBalancer& loadBalancer() PURE;
+
+  /**
+   * @return HostConstSharedPtr to the real host chosen by the backing load balancer.
+   */
+  virtual HostConstSharedPtr chooseHost(const LoadBalancerContext*) PURE;
 };
 
 } // Upstream

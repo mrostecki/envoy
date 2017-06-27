@@ -79,6 +79,7 @@ public:
   MOCK_METHOD0(hostSet, const HostSet&());
   MOCK_METHOD0(info, ClusterInfoConstSharedPtr());
   MOCK_METHOD0(loadBalancer, LoadBalancer&());
+  MOCK_METHOD1(chooseHost, HostConstSharedPtr(const LoadBalancerContext*));
 
   NiceMock<MockCluster> cluster_;
   NiceMock<MockLoadBalancer> lb_;

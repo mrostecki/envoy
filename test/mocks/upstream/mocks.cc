@@ -99,6 +99,7 @@ MockThreadLocalCluster::MockThreadLocalCluster() {
   ON_CALL(*this, hostSet()).WillByDefault(ReturnRef(cluster_));
   ON_CALL(*this, info()).WillByDefault(Return(cluster_.info_));
   ON_CALL(*this, loadBalancer()).WillByDefault(ReturnRef(lb_));
+  ON_CALL(*this, chooseHost(_)).WillByDefault(Invoke(&lb_, &NiceMock<MockLoadBalancer>::chooseHost)); 
 }
 
 MockThreadLocalCluster::~MockThreadLocalCluster() {}
