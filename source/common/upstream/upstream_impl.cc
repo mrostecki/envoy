@@ -26,6 +26,7 @@
 #include "common/ssl/context_config_impl.h"
 #include "common/upstream/health_checker_impl.h"
 #include "common/upstream/logical_dns_cluster.h"
+#include "common/upstream/original_dst_cluster.h"
 #include "common/upstream/sds.h"
 
 #include "spdlog/spdlog.h"
@@ -142,6 +143,8 @@ ClusterPtr ClusterImplBase::create(const Json::Object& cluster, ClusterManager& 
   } else if (string_type == "logical_dns") {
     new_cluster.reset(new LogicalDnsCluster(cluster, runtime, stats, ssl_context_manager,
                                             selected_dns_resolver, tls, dispatcher));
+  } else if (string_type == "original_dst") {
+    new_cluster.reset(new OriginalDstCluster(cluster, runtime, stats, ssl_context_manager));
   } else {
     ASSERT(string_type == "sds");
     if (!sds_config.valid()) {

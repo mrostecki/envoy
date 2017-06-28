@@ -1221,7 +1221,7 @@ const std::string Json::Schema::CLUSTER_SCHEMA(R"EOF(
       },
       "type" : {
         "type" : "string",
-        "enum" : ["static", "strict_dns", "logical_dns", "sds"]
+        "enum" : ["static", "strict_dns", "logical_dns", "sds", "original_dst"]
       },
       "connect_timeout_ms" : {
         "type" : "integer",

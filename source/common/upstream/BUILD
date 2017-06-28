@@ -117,6 +117,18 @@ envoy_cc_library(
 )
 
 envoy_cc_library(
+    name = "original_dst_cluster_lib",
+    srcs = ["original_dst_cluster.cc"],
+    hdrs = ["original_dst_cluster.h"],
+    deps = [
+        ":upstream_includes",
+        "//source/common/common:empty_string",
+        "//source/common/network:address_lib",
+        "//source/common/network:utility_lib",
+    ],
+)
+
+envoy_cc_library(
     name = "outlier_detection_lib",
     srcs = ["outlier_detection_impl.cc"],
     hdrs = ["outlier_detection_impl.h"],
@@ -184,6 +196,7 @@ envoy_cc_library(
     deps = [
         ":health_checker_lib",
         ":logical_dns_cluster_lib",
+        ":original_dst_cluster_lib",
         ":sds_lib",
         ":upstream_includes",
         "//include/envoy/event:dispatcher_interface",
