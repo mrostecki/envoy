@@ -172,7 +172,13 @@ private:
       const HostSet& hostSet() override { return host_set_; }
       ClusterInfoConstSharedPtr info() override { return cluster_info_; }
       HostConstSharedPtr chooseHost(const LoadBalancerContext* context) override {
-	return lb_->chooseHost(context);
+	auto host = lb_->chooseHost(context);
+	if (host) {
+	  auto real_host = host->getRealHost(context);
+	  if (real_host)
+	    return real_host;
+	}
+	return host;
       }
 
       ThreadLocalClusterManagerImpl& parent_;
