@@ -104,7 +104,8 @@ typedef std::shared_ptr<FilterConfig> FilterConfigSharedPtr;
 /**
  * Service routing filter.
  */
-class Filter : Logger::Loggable<Logger::Id::router>, public Http::StreamDecoderFilter {
+class Filter : Logger::Loggable<Logger::Id::router>, public Http::StreamDecoderFilter,
+               public Upstream::LoadBalancerContext {
 public:
   Filter(FilterConfig& config)
       : config_(config), downstream_response_started_(false), downstream_end_stream_(false),
@@ -123,6 +124,17 @@ public:
     callbacks_ = &callbacks;
   }
 
+  // Upstream::LoadBalancerContext
+  Optional<uint64_t> hashKey() const override {
+    if (route_entry_ && downstream_headers_) {
+      auto hash_policy = route_entry_->hashPolicy();
+      if (hash_policy) {
+        return hash_policy->generateHash(*downstream_headers_);
+      }
+    }
+    return {};
+  }
+  
 private:
   struct UpstreamRequest : public Http::StreamDecoder,
                            public Http::StreamCallbacks,
@@ -176,15 +188,6 @@ private:
 
   typedef std::unique_ptr<UpstreamRequest> UpstreamRequestPtr;
 
-  struct LoadBalancerContextImpl : public Upstream::LoadBalancerContext {
-    LoadBalancerContextImpl(const Optional<uint64_t>& hash) : hash_(hash) {}
-
-    // Upstream::LoadBalancerContext
-    Optional<uint64_t> hashKey() const override { return hash_; }
-
-    const Optional<uint64_t> hash_;
-  };
-
   enum class UpstreamResetType { Reset, GlobalTimeout, PerTryTimeout };
 
   Http::AccessLog::ResponseFlag
@@ -231,7 +234,6 @@ private:
   Http::HeaderMap* downstream_headers_{};
   Http::HeaderMap* downstream_trailers_{};
   MonotonicTime downstream_request_complete_time_;
-  std::unique_ptr<LoadBalancerContextImpl> lb_context_;
 
   bool downstream_response_started_ : 1;
   bool downstream_end_stream_ : 1;
