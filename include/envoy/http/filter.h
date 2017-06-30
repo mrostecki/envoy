@@ -76,6 +76,11 @@ public:
   virtual uint64_t connectionId() PURE;
 
   /**
+   * @return Network::Connection* the originating connection.
+   */
+  virtual Network::Connection* connection() PURE;
+
+  /**
    * @return Ssl::Connection* the ssl connection.
    */
   virtual Ssl::Connection* ssl() PURE;
