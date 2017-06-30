@@ -162,6 +162,16 @@ public:
    * Get the value set with setReadBufferLimit.
    */
   virtual uint32_t readBufferLimit() const PURE;
+  
+  /**
+   * Set boolean telling if the connection is using an original destination address.
+   */
+  virtual void setUsingOriginalDst(bool using_original_dst) PURE;
+
+  /**
+   * Get the value set with setReadBufferLimit.
+   */
+  virtual bool usingOriginalDst() const PURE;
 };
 
 typedef std::unique_ptr<Connection> ConnectionPtr;

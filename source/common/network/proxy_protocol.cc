@@ -113,7 +113,7 @@ void ProxyProtocol::ActiveConnection::onReadWorker() {
   // TODO(mattklein123): Parse the remote port instead of passing zero.
   // TODO(jrajahalme): Use destination address from proxy protocol instead of the local
   //                   address of the socket?
-  listener.newConnection(fd, remote_address, Address::addressFromFd(fd_));
+  listener.newConnection(fd, remote_address, Address::addressFromFd(fd_), false);
 }
 
 void ProxyProtocol::ActiveConnection::close() {

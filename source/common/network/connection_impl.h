@@ -72,6 +72,8 @@ public:
   void write(Buffer::Instance& data) override;
   void setReadBufferLimit(uint32_t limit) override { read_buffer_limit_ = limit; }
   uint32_t readBufferLimit() const override { return read_buffer_limit_; }
+  void setUsingOriginalDst(bool using_original_dst) override { using_original_dst_ = using_original_dst; }
+  bool usingOriginalDst() const override { return using_original_dst_; }
 
   // Network::BufferSource
   Buffer::Instance& getReadBuffer() override { return read_buffer_; }
@@ -138,6 +140,7 @@ private:
   uint64_t last_read_buffer_size_{};
   uint64_t last_write_buffer_size_{};
   std::unique_ptr<BufferStats> buffer_stats_;
+  bool using_original_dst_;
 };
 
 /**

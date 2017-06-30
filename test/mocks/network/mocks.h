@@ -65,6 +65,8 @@ public:
   MOCK_METHOD1(write, void(Buffer::Instance& data));
   MOCK_METHOD1(setReadBufferLimit, void(uint32_t limit));
   MOCK_CONST_METHOD0(readBufferLimit, uint32_t());
+  MOCK_METHOD1(setUsingOriginalDst, void(bool using_original_dst));
+  MOCK_CONST_METHOD0(usingOriginalDst, bool());
 };
 
 /**
@@ -97,6 +99,8 @@ public:
   MOCK_METHOD1(write, void(Buffer::Instance& data));
   MOCK_METHOD1(setReadBufferLimit, void(uint32_t limit));
   MOCK_CONST_METHOD0(readBufferLimit, uint32_t());
+  MOCK_METHOD1(setUsingOriginalDst, void(bool using_original_dst));
+  MOCK_CONST_METHOD0(usingOriginalDst, bool());
 
   // Network::ClientConnection
   MOCK_METHOD0(connect, void());
