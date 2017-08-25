@@ -65,8 +65,9 @@ envoy_cc_library(
         "//include/envoy/server:listener_manager_interface",
         "//source/common/common:linked_object",
         "//source/common/common:non_copyable",
+        "//source/common/filter:original_dst_lib",
+        "//source/common/filter:proxy_protocol_lib",
         "//source/common/network:connection_lib",
-        "//source/common/network:proxy_protocol_lib",
     ],
 )
 

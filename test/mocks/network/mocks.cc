@@ -14,6 +14,7 @@
 #include "gtest/gtest.h"
 
 namespace Envoy {
+using testing::A;
 using testing::Invoke;
 using testing::Return;
 using testing::ReturnPointee;
@@ -116,7 +117,9 @@ MockListenerCallbacks::~MockListenerCallbacks() {}
 MockDrainDecision::MockDrainDecision() {}
 MockDrainDecision::~MockDrainDecision() {}
 
-MockFilterChainFactory::MockFilterChainFactory() {}
+MockFilterChainFactory::MockFilterChainFactory() {
+  ON_CALL(*this, createFilterChain(A<ListenerFilterManager&>())).WillByDefault(Return(true));
+}
 MockFilterChainFactory::~MockFilterChainFactory() {}
 
 MockListenSocket::MockListenSocket() : local_address_(new Address::Ipv4Instance(80)) {
@@ -124,6 +127,12 @@ MockListenSocket::MockListenSocket() : local_address_(new Address::Ipv4Instance(
 }
 
 MockListenSocket::~MockListenSocket() {}
+
+MockAcceptSocket::MockAcceptSocket() : local_address_(new Address::Ipv4Instance(80)) {
+  ON_CALL(*this, localAddress()).WillByDefault(Return(local_address_));
+}
+
+MockAcceptSocket::~MockAcceptSocket() {}
 
 MockListener::MockListener() {}
 MockListener::~MockListener() { onDestroy(); }

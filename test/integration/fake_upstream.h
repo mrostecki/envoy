@@ -232,6 +232,7 @@ public:
 
   // Network::FilterChainFactory
   bool createFilterChain(Network::Connection& connection) override;
+  bool createFilterChain(Network::ListenerFilterManager& listener) override;
 
 private:
   FakeUpstream(Ssl::ServerContext* ssl_ctx, Network::ListenSocketPtr&& connection,

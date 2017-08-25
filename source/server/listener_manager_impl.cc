@@ -52,6 +52,45 @@ ProdListenerComponentFactory::createFilterFactoryList_(
   return ret;
 }
 
+// Use a template to reduce code duplication from above?
+std::vector<Configuration::ListenerFilterFactoryCb>
+ProdListenerComponentFactory::createListenerFilterFactoryList_(
+    const Protobuf::RepeatedPtrField<envoy::api::v2::Filter>& filters,
+    Configuration::FactoryContext& context) {
+  std::vector<Configuration::ListenerFilterFactoryCb> ret;
+  for (ssize_t i = 0; i < filters.size(); i++) {
+    const std::string string_type = filters[i].deprecated_v1().type();
+    const std::string string_name = filters[i].name();
+    const auto& proto_config = filters[i].config();
+    ENVOY_LOG(info, "  listener filter #{}:", i);
+    ENVOY_LOG(info, "             name: {}", string_name);
+    const Json::ObjectSharedPtr filter_config = MessageUtil::getJsonObjectFromMessage(proto_config);
+
+    // Now see if there is a factory that will accept the config.
+    Configuration::NamedListenerFilterConfigFactory* factory =
+        Registry::FactoryRegistry<Configuration::NamedListenerFilterConfigFactory>::getFactory(
+            string_name);
+    if (factory != nullptr) {
+      Configuration::ListenerFilterFactoryCb callback;
+      if (filter_config->getBoolean("deprecated_v1", false)) {
+        callback = factory->createFilterFactory(*filter_config->getObject("value", true), context);
+      } else {
+        auto message = factory->createEmptyConfigProto();
+        if (!message) {
+          throw EnvoyException(
+              fmt::format("Filter factory for '{}' has unexpected proto config", string_name));
+        }
+        MessageUtil::loadFromJson(filter_config->asJsonString(), *message);
+        callback = factory->createFilterFactoryFromProto(*message, context);
+      }
+      ret.push_back(callback);
+    } else {
+      throw EnvoyException(fmt::format("unable to create filter factory for '{}'", string_name));
+    }
+  }
+  return ret;
+}
+
 Network::ListenSocketSharedPtr
 ProdListenerComponentFactory::createListenSocket(Network::Address::InstanceConstSharedPtr address,
                                                  bool bind_to_port) {
@@ -109,6 +148,10 @@ ListenerImpl::ListenerImpl(const envoy::api::v2::Listener& config, ListenerManag
   }
 
   filter_factories_ = parent_.factory_.createFilterFactoryList(filter_chain.filters(), *this);
+  if (config.listener_filter_chain().size()) {
+    listener_filter_factories_ =
+        parent_.factory_.createListenerFilterFactoryList(config.listener_filter_chain(), *this);
+  }
 }
 
 ListenerImpl::~ListenerImpl() {
@@ -123,6 +166,10 @@ ListenerImpl::~ListenerImpl() {
 
 bool ListenerImpl::createFilterChain(Network::Connection& connection) {
   return Configuration::FilterChainUtility::buildFilterChain(connection, filter_factories_);
+}
+
+bool ListenerImpl::createFilterChain(Network::ListenerFilterManager& manager) {
+  return Configuration::FilterChainUtility::buildFilterChain(manager, listener_filter_factories_);
 }
 
 bool ListenerImpl::drainClose() const {

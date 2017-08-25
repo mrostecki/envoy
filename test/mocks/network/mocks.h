@@ -204,6 +204,7 @@ public:
   ~MockFilterChainFactory();
 
   MOCK_METHOD1(createFilterChain, bool(Connection& connection));
+  MOCK_METHOD1(createFilterChain, bool(ListenerFilterManager& listener));
 };
 
 class MockListenSocket : public ListenSocket {
@@ -230,6 +231,7 @@ public:
   MOCK_METHOD1(resetRemoteAddress, void(Address::InstanceConstSharedPtr&));
   MOCK_CONST_METHOD0(fd, int());
   MOCK_METHOD0(takeFd, int());
+  MOCK_METHOD0(clearReset, void());
   MOCK_METHOD0(close, void());
 
   Address::InstanceConstSharedPtr local_address_;

@@ -1,7 +1,11 @@
 {
     "listeners": [{
         "address": "tcp://0.0.0.0:10000",
-        "use_original_dst": true,
+        "listener_filters": [{
+            "type": "accept",
+            "name": "original_dst",
+            "config": {}
+	}],
         "filters": [{
             "type": "read",
             "name": "http_connection_manager",
