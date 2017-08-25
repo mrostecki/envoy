@@ -49,6 +49,8 @@ envoy_cc_library(
         "//source/server/config/network:file_access_log_lib",
         "//source/server/config/network:http_connection_manager_lib",
         "//source/server/config/network:mongo_proxy_lib",
+        "//source/server/config/network:original_dst_lib",
+        "//source/server/config/network:proxy_protocol_lib",
         "//source/server/config/network:ratelimit_lib",
         "//source/server/config/network:redis_proxy_lib",
         "//source/server/config/network:tcp_proxy_lib",
