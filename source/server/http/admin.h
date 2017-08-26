@@ -8,6 +8,7 @@
 #include "envoy/network/listen_socket.h"
 #include "envoy/server/admin.h"
 #include "envoy/server/instance.h"
+#include "envoy/server/listener_manager.h"
 #include "envoy/upstream/outlier_detection.h"
 #include "envoy/upstream/resource_manager.h"
 
@@ -32,11 +33,12 @@ class AdminImpl : public Admin,
 public:
   AdminImpl(const std::string& access_log_path, const std::string& profiler_path,
             const std::string& address_out_path, Network::Address::InstanceConstSharedPtr address,
-            Server::Instance& server);
+            Stats::ScopePtr&& admin_scope, Server::Instance& server);
 
   Http::Code runCallback(const std::string& path, Buffer::Instance& response);
   const Network::ListenSocket& socket() override { return *socket_; }
   Network::ListenSocket& mutable_socket() { return *socket_; }
+  Server::Listener& listener() { return listener_; }
 
   // Server::Admin
   bool addHandler(const std::string& prefix, const std::string& help_text, HandlerCb callback,
@@ -129,6 +131,27 @@ private:
   Http::Code handlerQuitQuitQuit(const std::string& url, Buffer::Instance& response);
   Http::Code handlerListenerInfo(const std::string& url, Buffer::Instance& response);
 
+  class Listener : public Server::Listener {
+  public:
+    Listener(AdminImpl& parent) : parent_(parent), name_("admin") {}
+
+  private:
+    // Server::Listener
+    Network::FilterChainFactory& filterChainFactory() override { return parent_; }
+    Network::ListenSocket& socket() override { return parent_.mutable_socket(); }
+    Ssl::ServerContext* sslContext() override { return nullptr; }
+    bool useProxyProto() override { return false; }
+    bool bindToPort() override { return true; }
+    bool useOriginalDst() override { return false; }
+    uint32_t perConnectionBufferLimitBytes() override { return 0; }
+    Stats::Scope& listenerScope() override { return *parent_.admin_scope_; }
+    uint64_t listenerTag() const override { return 0; }
+    const std::string& name() const override { return name_; }
+
+    AdminImpl& parent_;
+    std::string name_;
+  };
+
   Server::Instance& server_;
   std::list<Http::AccessLog::InstanceSharedPtr> access_logs_;
   const std::string profile_path_;
@@ -141,6 +164,8 @@ private:
   Optional<std::string> user_agent_;
   Http::SlowDateProviderImpl date_provider_;
   std::vector<Http::ClientCertDetailsType> set_current_client_cert_details_;
+  Stats::ScopePtr admin_scope_;
+  Listener listener_;
 };
 
 /**

@@ -235,7 +235,8 @@ FakeUpstream::FakeUpstream(Ssl::ServerContext* ssl_ctx, Network::ListenSocketPtr
     : ssl_ctx_(ssl_ctx), socket_(std::move(listen_socket)),
       api_(new Api::Impl(std::chrono::milliseconds(10000))),
       dispatcher_(api_->allocateDispatcher()),
-      handler_(new Server::ConnectionHandlerImpl(log(), *dispatcher_)), http_type_(type) {
+      handler_(new Server::ConnectionHandlerImpl(log(), *dispatcher_)), http_type_(type),
+      listener_(*this) {
   thread_.reset(new Thread::Thread([this]() -> void { threadRoutine(); }));
   server_initialized_.waitReady();
 }
@@ -254,13 +255,7 @@ bool FakeUpstream::createFilterChain(Network::Connection& connection) {
 }
 
 void FakeUpstream::threadRoutine() {
-  if (ssl_ctx_) {
-    handler_->addSslListener(*this, *ssl_ctx_, *socket_, stats_store_, 0,
-                             Network::ListenerOptions::listenerOptionsWithBindToPort());
-  } else {
-    handler_->addListener(*this, *socket_, stats_store_, 0,
-                          Network::ListenerOptions::listenerOptionsWithBindToPort());
-  }
+  handler_->addListener(listener_);
 
   server_initialized_.setReady();
   dispatcher_->run(Event::Dispatcher::RunType::Block);

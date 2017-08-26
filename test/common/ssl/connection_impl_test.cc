@@ -52,9 +52,7 @@ void testUtil(const std::string& client_ctx_json, const std::string& server_ctx_
   Network::TcpListenSocket socket(Network::Test::getCanonicalLoopbackAddress(version), true);
   Network::MockListenerCallbacks callbacks;
   Network::MockConnectionHandler connection_handler;
-  Network::ListenerPtr listener =
-      dispatcher.createSslListener(connection_handler, *server_ctx, socket, callbacks, stats_store,
-                                   Network::ListenerOptions::listenerOptionsWithBindToPort());
+  Network::ListenerPtr listener = dispatcher.createListener(socket, callbacks, true);
 
   Json::ObjectSharedPtr client_ctx_loader = TestEnvironment::jsonLoadFromString(client_ctx_json);
   ClientContextConfigImpl client_ctx_config(*client_ctx_loader);
@@ -65,6 +63,12 @@ void testUtil(const std::string& client_ctx_json, const std::string& server_ctx_
 
   Network::ConnectionPtr server_connection;
   Network::MockConnectionCallbacks server_connection_callbacks;
+  EXPECT_CALL(callbacks, onAccept_(_))
+      .WillOnce(Invoke([&](Network::AcceptSocketPtr& socket) -> void {
+        Network::ConnectionPtr new_connection =
+            dispatcher.createConnection(std::move(socket), server_ctx.get());
+        callbacks.onNewConnection(std::move(new_connection));
+      }));
   EXPECT_CALL(callbacks, onNewConnection_(_))
       .WillOnce(Invoke([&](Network::ConnectionPtr& conn) -> void {
         server_connection = std::move(conn);
@@ -327,9 +331,7 @@ TEST_P(SslConnectionImplTest, ClientAuthMultipleCAs) {
   Network::TcpListenSocket socket(Network::Test::getCanonicalLoopbackAddress(GetParam()), true);
   Network::MockListenerCallbacks callbacks;
   Network::MockConnectionHandler connection_handler;
-  Network::ListenerPtr listener =
-      dispatcher.createSslListener(connection_handler, *server_ctx, socket, callbacks, stats_store,
-                                   Network::ListenerOptions::listenerOptionsWithBindToPort());
+  Network::ListenerPtr listener = dispatcher.createListener(socket, callbacks, true);
 
   std::string client_ctx_json = R"EOF(
   {
@@ -360,6 +362,12 @@ TEST_P(SslConnectionImplTest, ClientAuthMultipleCAs) {
 
   Network::ConnectionPtr server_connection;
   Network::MockConnectionCallbacks server_connection_callbacks;
+  EXPECT_CALL(callbacks, onAccept_(_))
+      .WillOnce(Invoke([&](Network::AcceptSocketPtr& socket) -> void {
+        Network::ConnectionPtr new_connection =
+            dispatcher.createConnection(std::move(socket), server_ctx.get());
+        callbacks.onNewConnection(std::move(new_connection));
+      }));
   EXPECT_CALL(callbacks, onNewConnection_(_))
       .WillOnce(Invoke([&](Network::ConnectionPtr& conn) -> void {
         server_connection = std::move(conn);
@@ -401,9 +409,7 @@ TEST_P(SslConnectionImplTest, SslError) {
   Network::TcpListenSocket socket(Network::Test::getCanonicalLoopbackAddress(GetParam()), true);
   Network::MockListenerCallbacks callbacks;
   Network::MockConnectionHandler connection_handler;
-  Network::ListenerPtr listener =
-      dispatcher.createSslListener(connection_handler, *server_ctx, socket, callbacks, stats_store,
-                                   Network::ListenerOptions::listenerOptionsWithBindToPort());
+  Network::ListenerPtr listener = dispatcher.createListener(socket, callbacks, true);
 
   Network::ClientConnectionPtr client_connection = dispatcher.createClientConnection(
       socket.localAddress(), Network::Address::InstanceConstSharedPtr());
@@ -413,6 +419,12 @@ TEST_P(SslConnectionImplTest, SslError) {
 
   Network::ConnectionPtr server_connection;
   Network::MockConnectionCallbacks server_connection_callbacks;
+  EXPECT_CALL(callbacks, onAccept_(_))
+      .WillOnce(Invoke([&](Network::AcceptSocketPtr& socket) -> void {
+        Network::ConnectionPtr new_connection =
+            dispatcher.createConnection(std::move(socket), server_ctx.get());
+        callbacks.onNewConnection(std::move(new_connection));
+      }));
   EXPECT_CALL(callbacks, onNewConnection_(_))
       .WillOnce(Invoke([&](Network::ConnectionPtr& conn) -> void {
         server_connection = std::move(conn);
@@ -433,18 +445,13 @@ TEST_P(SslConnectionImplTest, SslError) {
 class SslReadBufferLimitTest : public SslCertsTest,
                                public testing::WithParamInterface<Network::Address::IpVersion> {
 public:
-  void initialize(uint32_t read_buffer_limit) {
+  void initialize() {
     server_ctx_loader_ = TestEnvironment::jsonLoadFromString(server_ctx_json_);
     server_ctx_config_.reset(new ServerContextConfigImpl(*server_ctx_loader_));
     manager_.reset(new ContextManagerImpl(runtime_));
     server_ctx_ = manager_->createSslServerContext(stats_store_, *server_ctx_config_);
 
-    listener_ = dispatcher_->createSslListener(
-        connection_handler_, *server_ctx_, socket_, listener_callbacks_, stats_store_,
-        {.bind_to_port_ = true,
-         .use_proxy_proto_ = false,
-         .use_original_dst_ = false,
-         .per_connection_buffer_limit_bytes_ = read_buffer_limit});
+    listener_ = dispatcher_->createListener(socket_, listener_callbacks_, true);
 
     client_ctx_loader_ = TestEnvironment::jsonLoadFromString(client_ctx_json_);
     client_ctx_config_.reset(new ClientContextConfigImpl(*client_ctx_loader_));
@@ -459,8 +466,15 @@ public:
 
   void readBufferLimitTest(uint32_t read_buffer_limit, uint32_t expected_chunk_size,
                            uint32_t write_size, uint32_t num_writes, bool reserve_write_space) {
-    initialize(read_buffer_limit);
+    initialize();
 
+    EXPECT_CALL(listener_callbacks_, onAccept_(_))
+        .WillOnce(Invoke([&](Network::AcceptSocketPtr& socket) -> void {
+          Network::ConnectionPtr new_connection =
+              dispatcher_->createConnection(std::move(socket), server_ctx_.get());
+          new_connection->setBufferLimits(read_buffer_limit);
+          listener_callbacks_.onNewConnection(std::move(new_connection));
+        }));
     EXPECT_CALL(listener_callbacks_, onNewConnection_(_))
         .WillOnce(Invoke([&](Network::ConnectionPtr& conn) -> void {
           server_connection_ = std::move(conn);
@@ -533,11 +547,18 @@ public:
           return new Buffer::OwnedImpl; // server buffers.
         }));
 
-    initialize(read_buffer_limit);
+    initialize();
 
     EXPECT_CALL(client_callbacks_, onEvent(Network::ConnectionEvent::Connected))
         .WillOnce(Invoke([&](Network::ConnectionEvent) -> void { dispatcher_->exit(); }));
 
+    EXPECT_CALL(listener_callbacks_, onAccept_(_))
+        .WillOnce(Invoke([&](Network::AcceptSocketPtr& socket) -> void {
+          Network::ConnectionPtr new_connection =
+              dispatcher_->createConnection(std::move(socket), server_ctx_.get());
+          new_connection->setBufferLimits(read_buffer_limit);
+          listener_callbacks_.onNewConnection(std::move(new_connection));
+        }));
     EXPECT_CALL(listener_callbacks_, onNewConnection_(_))
         .WillOnce(Invoke([&](Network::ConnectionPtr& conn) -> void {
           server_connection_ = std::move(conn);
@@ -645,8 +666,15 @@ TEST_P(SslReadBufferLimitTest, TestBind) {
         new Network::Address::Ipv6Instance(address_string, 0)};
   }
 
-  initialize(0);
+  initialize();
 
+  EXPECT_CALL(listener_callbacks_, onAccept_(_))
+      .WillOnce(Invoke([&](Network::AcceptSocketPtr& socket) -> void {
+        Network::ConnectionPtr new_connection =
+            dispatcher_->createConnection(std::move(socket), server_ctx_.get());
+        new_connection->setBufferLimits(0);
+        listener_callbacks_.onNewConnection(std::move(new_connection));
+      }));
   EXPECT_CALL(listener_callbacks_, onNewConnection_(_))
       .WillOnce(Invoke([&](Network::ConnectionPtr& conn) -> void {
         server_connection_ = std::move(conn);

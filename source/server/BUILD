@@ -62,8 +62,11 @@ envoy_cc_library(
         "//include/envoy/network:filter_interface",
         "//include/envoy/network:listen_socket_interface",
         "//include/envoy/network:listener_interface",
+        "//include/envoy/server:listener_manager_interface",
         "//source/common/common:linked_object",
         "//source/common/common:non_copyable",
+        "//source/common/network:connection_lib",
+        "//source/common/network:proxy_protocol_lib",
     ],
 )
 

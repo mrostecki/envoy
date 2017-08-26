@@ -332,7 +332,8 @@ AdminImpl::NullRouteConfigProvider::NullRouteConfigProvider()
 
 AdminImpl::AdminImpl(const std::string& access_log_path, const std::string& profile_path,
                      const std::string& address_out_path,
-                     Network::Address::InstanceConstSharedPtr address, Server::Instance& server)
+                     Network::Address::InstanceConstSharedPtr address,
+                     Stats::ScopePtr&& admin_scope, Server::Instance& server)
     : server_(server), profile_path_(profile_path),
       socket_(new Network::TcpListenSocket(address, true)),
       stats_(Http::ConnectionManagerImpl::generateStats("http.admin.", server_.stats())),
@@ -357,7 +358,8 @@ AdminImpl::AdminImpl(const std::string& access_log_path, const std::string& prof
            MAKE_ADMIN_HANDLER(handlerServerInfo), false},
           {"/stats", "print server stats", MAKE_ADMIN_HANDLER(handlerStats), false},
           {"/listeners", "print listener addresses", MAKE_ADMIN_HANDLER(handlerListenerInfo),
-           false}} {
+           false}},
+      admin_scope_(std::move(admin_scope)), listener_(*this) {
 
   if (!address_out_path.empty()) {
     std::ofstream address_out_file(address_out_path);

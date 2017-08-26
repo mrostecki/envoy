@@ -163,7 +163,6 @@ private:
   ProdWorkerFactory worker_factory_;
   std::unique_ptr<ListenerManager> listener_manager_;
   std::unique_ptr<Configuration::Main> config_;
-  Stats::ScopePtr admin_scope_;
   Event::SignalEventPtr sigterm_;
   Event::SignalEventPtr sig_usr_1_;
   Event::SignalEventPtr sig_hup_;
