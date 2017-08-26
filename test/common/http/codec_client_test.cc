@@ -178,14 +178,18 @@ class CodecNetworkTest : public testing::TestWithParam<Network::Address::IpVersi
 public:
   CodecNetworkTest() {
     dispatcher_.reset(new Event::DispatcherImpl);
-    upstream_listener_ =
-        dispatcher_->createListener(connection_handler_, socket_, listener_callbacks_, stats_store_,
-                                    Network::ListenerOptions::listenerOptionsWithBindToPort());
+    upstream_listener_ = dispatcher_->createListener(socket_, listener_callbacks_, true);
     Network::ClientConnectionPtr client_connection =
         dispatcher_->createClientConnection(socket_.localAddress(), source_address_);
     client_connection_ = client_connection.get();
     codec_ = new Http::MockClientConnection();
     client_.reset(new CodecClientForTest(std::move(client_connection), codec_, nullptr, host_));
+    EXPECT_CALL(listener_callbacks_, onAccept_(_))
+        .WillOnce(Invoke([&](Network::AcceptSocketPtr& socket) -> void {
+          Network::ConnectionPtr new_connection =
+              dispatcher_->createConnection(std::move(socket), nullptr);
+          listener_callbacks_.onNewConnection(std::move(new_connection));
+        }));
     EXPECT_CALL(listener_callbacks_, onNewConnection_(_))
         .WillOnce(Invoke([&](Network::ConnectionPtr& conn) -> void {
           upstream_connection_ = std::move(conn);
