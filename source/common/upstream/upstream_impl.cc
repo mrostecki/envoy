@@ -50,17 +50,19 @@ getSourceAddress(const envoy::api::v2::Cluster& cluster,
 }
 } // namespace
 
-Host::CreateConnectionData HostImpl::createConnection(Event::Dispatcher& dispatcher) const {
-  return {createConnection(dispatcher, *cluster_, address_), shared_from_this()};
+Host::CreateConnectionData HostImpl::createConnection(Event::Dispatcher& dispatcher,
+                                                      uint32_t so_mark) const {
+  return {createConnection(dispatcher, *cluster_, address_, so_mark), shared_from_this()};
 }
 
 Network::ClientConnectionPtr
 HostImpl::createConnection(Event::Dispatcher& dispatcher, const ClusterInfo& cluster,
-                           Network::Address::InstanceConstSharedPtr address) {
+                           Network::Address::InstanceConstSharedPtr address, uint32_t so_mark) {
   Network::ClientConnectionPtr connection =
-      cluster.sslContext() ? dispatcher.createSslClientConnection(*cluster.sslContext(), address,
-                                                                  cluster.sourceAddress())
-                           : dispatcher.createClientConnection(address, cluster.sourceAddress());
+      cluster.sslContext()
+          ? dispatcher.createSslClientConnection(*cluster.sslContext(), address,
+                                                 cluster.sourceAddress(), so_mark)
+          : dispatcher.createClientConnection(address, cluster.sourceAddress(), so_mark);
   connection->setBufferLimits(cluster.perConnectionBufferLimitBytes());
   return connection;
 }

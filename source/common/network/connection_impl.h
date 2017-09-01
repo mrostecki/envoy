@@ -48,7 +48,7 @@ public:
                  Address::InstanceConstSharedPtr remote_address,
                  Address::InstanceConstSharedPtr local_address,
                  Address::InstanceConstSharedPtr bind_to_address, bool using_original_dst,
-                 bool connected);
+                 bool connected, uint32_t so_mark);
 
   ~ConnectionImpl();
 
@@ -79,6 +79,7 @@ public:
   uint32_t bufferLimit() const override { return read_buffer_limit_; }
   bool usingOriginalDst() const override { return using_original_dst_; }
   bool aboveHighWatermark() const override { return above_high_watermark_; }
+  uint32_t socketMark() const override { return so_mark_; }
 
   // Network::BufferSource
   Buffer::Instance& getReadBuffer() override { return read_buffer_; }
@@ -159,6 +160,7 @@ private:
   const bool using_original_dst_;
   bool above_high_watermark_{false};
   bool detect_early_close_{true};
+  uint32_t so_mark_;
 };
 
 /**
@@ -168,7 +170,7 @@ class ClientConnectionImpl : public ConnectionImpl, virtual public ClientConnect
 public:
   ClientConnectionImpl(Event::DispatcherImpl& dispatcher,
                        Address::InstanceConstSharedPtr remote_address,
-                       const Address::InstanceConstSharedPtr source_address);
+                       const Address::InstanceConstSharedPtr source_address, uint32_t so_mark);
 
   // Network::ClientConnection
   void connect() override { doConnect(); }

@@ -56,7 +56,7 @@ ConnectionImpl::ConnectionImpl(Event::DispatcherImpl& dispatcher, int fd,
                                Address::InstanceConstSharedPtr remote_address,
                                Address::InstanceConstSharedPtr local_address,
                                Address::InstanceConstSharedPtr bind_to_address,
-                               bool using_original_dst, bool connected)
+                               bool using_original_dst, bool connected, uint32_t so_mark)
     : filter_manager_(*this, *this), remote_address_(remote_address),
       local_address_((local_address == nullptr) ? getNullLocalAddress(*remote_address)
                                                 : local_address),
@@ -65,11 +65,28 @@ ConnectionImpl::ConnectionImpl(Event::DispatcherImpl& dispatcher, int fd,
           dispatcher.getWatermarkFactory().create([this]() -> void { this->onLowWatermark(); },
                                                   [this]() -> void { this->onHighWatermark(); })),
       dispatcher_(dispatcher), fd_(fd), id_(++next_global_id_),
-      using_original_dst_(using_original_dst) {
+      using_original_dst_(using_original_dst), so_mark_(so_mark) {
 
   // Treat the lack of a valid fd (which in practice only happens if we run out of FDs) as an OOM
   // condition and just crash.
   RELEASE_ASSERT(fd_ != -1);
+
+  if (so_mark != Network::SO_MARK_NONE) {
+    int rc = setsockopt(fd, SOL_SOCKET, SO_MARK, &so_mark, sizeof(so_mark));
+    if (rc < 0) {
+      if (errno == EPERM) {
+        // Do not assert out in this case so that we can run tests without CAP_NET_ADMIN.
+        ENVOY_LOG_MISC(
+            critical,
+            "Failed to set socket option SO_MARK to {}, capability CAP_NET_ADMIN needed: {}",
+            so_mark, strerror(errno));
+      } else {
+        ENVOY_LOG_MISC(critical, "Socket option failure. Failed to set SO_MARK to {}: {}", so_mark,
+                       strerror(errno));
+        RELEASE_ASSERT(rc >= 0);
+      }
+    }
+  }
 
   if (!connected) {
     state_ |= InternalState::Connecting;
@@ -575,9 +592,9 @@ void ConnectionImpl::updateWriteBufferStats(uint64_t num_written, uint64_t new_s
 
 ClientConnectionImpl::ClientConnectionImpl(
     Event::DispatcherImpl& dispatcher, Address::InstanceConstSharedPtr address,
-    const Network::Address::InstanceConstSharedPtr source_address)
+    const Network::Address::InstanceConstSharedPtr source_address, uint32_t so_mark)
     : ConnectionImpl(dispatcher, address->socket(Address::SocketType::Stream), address, nullptr,
-                     source_address, false, false) {}
+                     source_address, false, false, so_mark) {}
 
 } // namespace Network
 } // namespace Envoy

@@ -41,8 +41,8 @@ public:
         connection_handler_(new Server::ConnectionHandlerImpl(ENVOY_LOGGER(), dispatcher_)),
         name_("proxy") {
     connection_handler_->addListener(*this);
-    conn_ = dispatcher_.createClientConnection(socket_.localAddress(),
-                                               Network::Address::InstanceConstSharedPtr());
+    conn_ = dispatcher_.createClientConnection(
+        socket_.localAddress(), Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
     conn_->addConnectionCallbacks(connection_callbacks_);
 
     ON_CALL(factory_, createFilterChain(A<ListenerFilterManager&>())).WillByDefault(Return(true));
@@ -316,8 +316,8 @@ public:
         connection_handler_(new Server::ConnectionHandlerImpl(ENVOY_LOGGER(), dispatcher_)),
         name_("proxy") {
     connection_handler_->addListener(*this);
-    conn_ = dispatcher_.createClientConnection(local_dst_address_,
-                                               Network::Address::InstanceConstSharedPtr());
+    conn_ = dispatcher_.createClientConnection(
+        local_dst_address_, Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
     conn_->addConnectionCallbacks(connection_callbacks_);
   }
 

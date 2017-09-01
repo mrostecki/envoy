@@ -30,7 +30,7 @@ static void errorCallbackTest(Address::IpVersion version) {
   Network::ListenerPtr listener = dispatcher.createListener(socket, listener_callbacks, true);
 
   Network::ClientConnectionPtr client_connection = dispatcher.createClientConnection(
-      socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      socket.localAddress(), Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   client_connection->connect();
 
   EXPECT_CALL(listener_callbacks, onAccept_(_))
@@ -92,7 +92,7 @@ TEST_P(ListenerImplTest, UseActualDst) {
   Network::TestListenerImpl listenerDst(dispatcher, socketDst, listener_callbacks2, false);
 
   Network::ClientConnectionPtr client_connection = dispatcher.createClientConnection(
-      socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      socket.localAddress(), Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   client_connection->connect();
 
   EXPECT_CALL(listener, getLocalAddress(_)).Times(0);
@@ -127,7 +127,7 @@ TEST_P(ListenerImplTest, WildcardListenerUseActualDst) {
   auto local_dst_address = Network::Utility::getAddressWithPort(
       *Network::Test::getCanonicalLoopbackAddress(version_), socket.localAddress()->ip()->port());
   Network::ClientConnectionPtr client_connection = dispatcher.createClientConnection(
-      local_dst_address, Network::Address::InstanceConstSharedPtr());
+      local_dst_address, Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   client_connection->connect();
 
   EXPECT_CALL(listener, getLocalAddress(_)).WillOnce(Return(local_dst_address));

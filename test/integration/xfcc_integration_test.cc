@@ -92,7 +92,8 @@ Network::ClientConnectionPtr XfccIntegrationTest::makeClientConnection() {
   Network::Address::InstanceConstSharedPtr address =
       Network::Utility::resolveUrl("tcp://" + Network::Test::getLoopbackAddressUrlString(version_) +
                                    ":" + std::to_string(lookupPort("plain")));
-  return dispatcher_->createClientConnection(address, Network::Address::InstanceConstSharedPtr());
+  return dispatcher_->createClientConnection(address, Network::Address::InstanceConstSharedPtr(),
+                                             Network::SO_MARK_NONE);
 }
 
 Network::ClientConnectionPtr XfccIntegrationTest::makeTlsClientConnection() {
@@ -100,7 +101,8 @@ Network::ClientConnectionPtr XfccIntegrationTest::makeTlsClientConnection() {
       Network::Utility::resolveUrl("tcp://" + Network::Test::getLoopbackAddressUrlString(version_) +
                                    ":" + std::to_string(lookupPort("ssl")));
   return dispatcher_->createSslClientConnection(*client_tls_ssl_ctx_, address,
-                                                Network::Address::InstanceConstSharedPtr());
+                                                Network::Address::InstanceConstSharedPtr(),
+                                                Network::SO_MARK_NONE);
 }
 
 Network::ClientConnectionPtr XfccIntegrationTest::makeMtlsClientConnection() {
@@ -108,7 +110,8 @@ Network::ClientConnectionPtr XfccIntegrationTest::makeMtlsClientConnection() {
       Network::Utility::resolveUrl("tcp://" + Network::Test::getLoopbackAddressUrlString(version_) +
                                    ":" + std::to_string(lookupPort("ssl")));
   return dispatcher_->createSslClientConnection(*client_mtls_ssl_ctx_, address,
-                                                Network::Address::InstanceConstSharedPtr());
+                                                Network::Address::InstanceConstSharedPtr(),
+                                                Network::SO_MARK_NONE);
 }
 
 void XfccIntegrationTest::startTestServerWithXfccConfig(std::string fcc, std::string sccd) {

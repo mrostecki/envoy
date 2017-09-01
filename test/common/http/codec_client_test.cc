@@ -179,8 +179,8 @@ public:
   CodecNetworkTest() {
     dispatcher_.reset(new Event::DispatcherImpl);
     upstream_listener_ = dispatcher_->createListener(socket_, listener_callbacks_, true);
-    Network::ClientConnectionPtr client_connection =
-        dispatcher_->createClientConnection(socket_.localAddress(), source_address_);
+    Network::ClientConnectionPtr client_connection = dispatcher_->createClientConnection(
+        socket_.localAddress(), source_address_, Network::SO_MARK_NONE);
     client_connection_ = client_connection.get();
     codec_ = new Http::MockClientConnection();
     client_.reset(new CodecClientForTest(std::move(client_connection), codec_, nullptr, host_));

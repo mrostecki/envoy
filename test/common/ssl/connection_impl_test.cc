@@ -60,7 +60,8 @@ void testUtil(const std::string& client_ctx_json, const std::string& server_ctx_
   ClientContextConfigImpl client_ctx_config(*client_ctx_loader);
   ClientContextPtr client_ctx(manager.createSslClientContext(stats_store, client_ctx_config));
   Network::ClientConnectionPtr client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
   client_connection->connect();
 
   Network::ConnectionPtr server_connection;
@@ -138,7 +139,8 @@ const std::string testUtilV2(const envoy::api::v2::Listener& server_proto,
   ClientContextConfigImpl client_ctx_config(client_ctx_proto);
   ClientContextPtr client_ctx(manager.createSslClientContext(stats_store, client_ctx_config));
   Network::ClientConnectionPtr client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
 
   if (!client_session.empty()) {
     Ssl::ConnectionImpl* ssl_connection =
@@ -482,7 +484,7 @@ TEST_P(SslConnectionImplTest, FlushCloseDuringHandshake) {
   Network::ListenerPtr listener = dispatcher.createListener(socket, callbacks, true);
 
   Network::ClientConnectionPtr client_connection = dispatcher.createClientConnection(
-      socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      socket.localAddress(), Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   client_connection->connect();
   Network::MockConnectionCallbacks client_connection_callbacks;
   client_connection->addConnectionCallbacks(client_connection_callbacks);
@@ -547,7 +549,8 @@ TEST_P(SslConnectionImplTest, ClientAuthMultipleCAs) {
   ClientContextConfigImpl client_ctx_config(*client_ctx_loader);
   ClientContextPtr client_ctx(manager.createSslClientContext(stats_store, client_ctx_config));
   Network::ClientConnectionPtr client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
 
   // Verify that server sent list with 2 acceptable client certificate CA names.
   Ssl::ConnectionImpl* ssl_connection =
@@ -622,7 +625,8 @@ void testTicketSessionResumption(const std::string& server_ctx_json1,
   ClientContextConfigImpl client_ctx_config(*client_ctx_loader);
   ClientContextPtr client_ctx(manager.createSslClientContext(stats_store, client_ctx_config));
   Network::ClientConnectionPtr client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket1.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket1.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
 
   Network::MockConnectionCallbacks client_connection_callbacks;
   client_connection->addConnectionCallbacks(client_connection_callbacks);
@@ -658,7 +662,8 @@ void testTicketSessionResumption(const std::string& server_ctx_json1,
   EXPECT_EQ(0UL, stats_store.counter("ssl.session_reused").value());
 
   client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket2.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket2.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
   client_connection->addConnectionCallbacks(client_connection_callbacks);
   Ssl::ConnectionImpl* ssl_connection =
       dynamic_cast<Ssl::ConnectionImpl*>(client_connection->ssl());
@@ -917,7 +922,8 @@ TEST_P(SslConnectionImplTest, ClientAuthCrossListenerSessionResumption) {
   ClientContextConfigImpl client_ctx_config(*client_ctx_loader);
   ClientContextPtr client_ctx(manager.createSslClientContext(stats_store, client_ctx_config));
   Network::ClientConnectionPtr client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
 
   Network::MockConnectionCallbacks client_connection_callbacks;
   client_connection->addConnectionCallbacks(client_connection_callbacks);
@@ -961,7 +967,8 @@ TEST_P(SslConnectionImplTest, ClientAuthCrossListenerSessionResumption) {
   EXPECT_EQ(2UL, stats_store.counter("ssl.handshake").value());
 
   client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket2.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket2.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
   client_connection->addConnectionCallbacks(client_connection_callbacks);
   Ssl::ConnectionImpl* ssl_connection =
       dynamic_cast<Ssl::ConnectionImpl*>(client_connection->ssl());
@@ -1011,7 +1018,7 @@ TEST_P(SslConnectionImplTest, SslError) {
   Network::ListenerPtr listener = dispatcher.createListener(socket, callbacks, true);
 
   Network::ClientConnectionPtr client_connection = dispatcher.createClientConnection(
-      socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      socket.localAddress(), Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   client_connection->connect();
   Buffer::OwnedImpl bad_data("bad_handshake_data");
   client_connection->write(bad_data);
@@ -1391,7 +1398,7 @@ public:
     client_ctx_ = manager_->createSslClientContext(stats_store_, *client_ctx_config_);
 
     client_connection_ = dispatcher_->createSslClientConnection(
-        *client_ctx_, socket_.localAddress(), source_address_);
+        *client_ctx_, socket_.localAddress(), source_address_, Network::SO_MARK_NONE);
     client_connection_->addConnectionCallbacks(client_callbacks_);
     client_connection_->connect();
     read_filter_.reset(new Network::MockReadFilter());

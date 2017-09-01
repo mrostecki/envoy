@@ -68,10 +68,10 @@ INSTANTIATE_TEST_CASE_P(IpVersions, ConnectionImplDeathTest,
 
 TEST_P(ConnectionImplDeathTest, BadFd) {
   Event::DispatcherImpl dispatcher;
-  EXPECT_DEATH(ConnectionImpl(dispatcher, -1,
-                              Network::Test::getCanonicalLoopbackAddress(GetParam()),
-                              Network::Test::getCanonicalLoopbackAddress(GetParam()),
-                              Network::Address::InstanceConstSharedPtr(), false, false),
+  EXPECT_DEATH(ConnectionImpl(
+                   dispatcher, -1, Network::Test::getCanonicalLoopbackAddress(GetParam()),
+                   Network::Test::getCanonicalLoopbackAddress(GetParam()),
+                   Network::Address::InstanceConstSharedPtr(), false, false, Network::SO_MARK_NONE),
                ".*assert failure: fd_ != -1.*");
 }
 
@@ -83,8 +83,8 @@ public:
     }
     listener_ = dispatcher_->createListener(socket_, listener_callbacks_, true);
 
-    client_connection_ =
-        dispatcher_->createClientConnection(socket_.localAddress(), source_address_);
+    client_connection_ = dispatcher_->createClientConnection(
+        socket_.localAddress(), source_address_, Network::SO_MARK_NONE);
     client_connection_->addConnectionCallbacks(client_callbacks_);
     EXPECT_EQ(nullptr, client_connection_->ssl());
     const Network::ClientConnection& const_connection = *client_connection_;
@@ -578,7 +578,8 @@ TEST_P(ConnectionImplTest, BindFailureTest) {
   dispatcher_.reset(new Event::DispatcherImpl);
   listener_ = dispatcher_->createListener(socket_, listener_callbacks_, true);
 
-  client_connection_ = dispatcher_->createClientConnection(socket_.localAddress(), source_address_);
+  client_connection_ = dispatcher_->createClientConnection(socket_.localAddress(), source_address_,
+                                                           Network::SO_MARK_NONE);
 
   MockConnectionStats connection_stats;
   client_connection_->setConnectionStats(connection_stats.toBufferStats());
@@ -596,7 +597,7 @@ public:
     listener_ = dispatcher_->createListener(socket_, listener_callbacks_, true);
 
     client_connection_ = dispatcher_->createClientConnection(
-        socket_.localAddress(), Network::Address::InstanceConstSharedPtr());
+        socket_.localAddress(), Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
     client_connection_->addConnectionCallbacks(client_callbacks_);
     client_connection_->connect();
 
@@ -668,8 +669,8 @@ TEST_P(TcpClientConnectionImplTest, BadConnectNotConnRefused) {
     // IPv6 reserved multicast address.
     address = Utility::resolveUrl("tcp://[ff00::]:1");
   }
-  ClientConnectionPtr connection =
-      dispatcher.createClientConnection(address, Network::Address::InstanceConstSharedPtr());
+  ClientConnectionPtr connection = dispatcher.createClientConnection(
+      address, Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   connection->connect();
   connection->noDelay(true);
   connection->close(ConnectionCloseType::NoFlush);
@@ -683,7 +684,7 @@ TEST_P(TcpClientConnectionImplTest, BadConnectConnRefused) {
   ClientConnectionPtr connection = dispatcher.createClientConnection(
       Utility::resolveUrl(
           fmt::format("tcp://{}:1", Network::Test::getLoopbackAddressUrlString(GetParam()))),
-      Network::Address::InstanceConstSharedPtr());
+      Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   connection->connect();
   connection->noDelay(true);
   dispatcher.run(Event::Dispatcher::RunType::Block);

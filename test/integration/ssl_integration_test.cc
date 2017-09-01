@@ -66,11 +66,11 @@ Network::ClientConnectionPtr SslIntegrationTest::makeSslClientConnection(bool al
   if (alpn) {
     return dispatcher_->createSslClientConnection(
         san ? *client_ssl_ctx_alpn_san_ : *client_ssl_ctx_alpn_, address,
-        Network::Address::InstanceConstSharedPtr());
+        Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   } else {
     return dispatcher_->createSslClientConnection(
         san ? *client_ssl_ctx_san_ : *client_ssl_ctx_plain_, address,
-        Network::Address::InstanceConstSharedPtr());
+        Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   }
 }
 

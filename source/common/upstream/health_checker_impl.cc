@@ -308,7 +308,8 @@ void HttpHealthCheckerImpl::HttpActiveHealthCheckSession::onEvent(Network::Conne
 
 void HttpHealthCheckerImpl::HttpActiveHealthCheckSession::onInterval() {
   if (!client_) {
-    Upstream::Host::CreateConnectionData conn = host_->createConnection(parent_.dispatcher_);
+    Upstream::Host::CreateConnectionData conn =
+        host_->createConnection(parent_.dispatcher_, Network::SO_MARK_NONE);
     client_.reset(parent_.createCodecClient(conn));
     client_->addConnectionCallbacks(connection_callback_impl_);
     expect_reset_ = false;
@@ -482,7 +483,7 @@ void TcpHealthCheckerImpl::TcpActiveHealthCheckSession::onEvent(Network::Connect
 
 void TcpHealthCheckerImpl::TcpActiveHealthCheckSession::onInterval() {
   if (!client_) {
-    client_ = host_->createConnection(parent_.dispatcher_).connection_;
+    client_ = host_->createConnection(parent_.dispatcher_, Network::SO_MARK_NONE).connection_;
     session_callbacks_.reset(new TcpSessionCallbacks(*this));
     client_->addConnectionCallbacks(*session_callbacks_);
     client_->addReadFilter(session_callbacks_);

@@ -74,6 +74,7 @@ public:
   MOCK_CONST_METHOD0(bufferLimit, uint32_t());
   MOCK_CONST_METHOD0(usingOriginalDst, bool());
   MOCK_CONST_METHOD0(aboveHighWatermark, bool());
+  MOCK_CONST_METHOD0(socketMark, uint32_t());
 };
 
 /**
@@ -110,6 +111,7 @@ public:
   MOCK_CONST_METHOD0(bufferLimit, uint32_t());
   MOCK_CONST_METHOD0(usingOriginalDst, bool());
   MOCK_CONST_METHOD0(aboveHighWatermark, bool());
+  MOCK_CONST_METHOD0(socketMark, uint32_t());
 
   // Network::ClientConnection
   MOCK_METHOD0(connect, void());
@@ -234,6 +236,8 @@ public:
   MOCK_CONST_METHOD0(localAddressReset, bool());
   MOCK_CONST_METHOD0(remoteAddress, Address::InstanceConstSharedPtr());
   MOCK_METHOD1(resetRemoteAddress, void(Address::InstanceConstSharedPtr&));
+  MOCK_CONST_METHOD0(socketMark, uint32_t());
+  MOCK_METHOD1(setSocketMark, void(uint32_t));
   MOCK_CONST_METHOD0(fd, int());
   MOCK_METHOD0(takeFd, int());
   MOCK_METHOD0(clearReset, void());
