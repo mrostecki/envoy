@@ -70,6 +70,19 @@ public:
   virtual void resetRemoteAddress(Address::InstanceConstSharedPtr& remote_address) PURE;
 
   /**
+   * @return the socket mark associated with the accept socket. Defaults to Network::SO_MARK_NONE.
+   */
+  virtual uint32_t socketMark() const PURE;
+
+  /**
+   * Set the socket mark associated with the accept socket. This does
+   * nothing for the accept socket itself, but will be transferred to
+   * Connection, from where it can be used to set the socket mark on
+   * any upstream ClientConnections.
+   */
+  virtual void setSocketMark(uint32_t so_mark) PURE;
+
+  /**
    * @return fd the accept socket's file descriptor.
    */
   virtual int fd() const PURE;

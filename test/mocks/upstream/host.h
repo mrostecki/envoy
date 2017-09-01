@@ -92,8 +92,9 @@ public:
   MockHost();
   ~MockHost();
 
-  CreateConnectionData createConnection(Event::Dispatcher& dispatcher) const override {
-    MockCreateConnectionData data = createConnection_(dispatcher);
+  CreateConnectionData createConnection(Event::Dispatcher& dispatcher,
+                                        uint32_t so_mark) const override {
+    MockCreateConnectionData data = createConnection_(dispatcher, so_mark);
     return {Network::ClientConnectionPtr{data.connection_}, data.host_description_};
   }
 
@@ -105,7 +106,8 @@ public:
   MOCK_CONST_METHOD0(canary, bool());
   MOCK_CONST_METHOD0(cluster, const ClusterInfo&());
   MOCK_CONST_METHOD0(counters, std::list<Stats::CounterSharedPtr>());
-  MOCK_CONST_METHOD1(createConnection_, MockCreateConnectionData(Event::Dispatcher& dispatcher));
+  MOCK_CONST_METHOD2(createConnection_,
+                     MockCreateConnectionData(Event::Dispatcher& dispatcher, uint32_t so_mark));
   MOCK_CONST_METHOD0(gauges, std::list<Stats::GaugeSharedPtr>());
   MOCK_METHOD1(healthFlagClear, void(HealthFlag flag));
   MOCK_CONST_METHOD1(healthFlagGet, bool(HealthFlag flag));

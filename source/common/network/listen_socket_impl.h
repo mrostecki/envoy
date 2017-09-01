@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+#include "envoy/network/connection.h"
 #include "envoy/network/listen_socket.h"
 
 #include "common/ssl/context_impl.h"
@@ -54,8 +55,8 @@ class AcceptSocketImpl : public AcceptSocket {
 public:
   AcceptSocketImpl(int fd, Address::InstanceConstSharedPtr&& local_address,
                    Address::InstanceConstSharedPtr&& remote_address)
-      : fd_(fd), local_address_reset_(false), local_address_(std::move(local_address)),
-        remote_address_(std::move(remote_address)) {}
+      : fd_(fd), local_address_reset_(false), so_mark_(Network::SO_MARK_NONE),
+        local_address_(std::move(local_address)), remote_address_(std::move(remote_address)) {}
   ~AcceptSocketImpl() { close(); }
 
   // Network::AcceptSocket
@@ -69,7 +70,10 @@ public:
   void resetRemoteAddress(Address::InstanceConstSharedPtr& remote_address) override {
     remote_address_ = remote_address;
   }
-  int fd() override { return fd_; }
+  uint32_t socketMark() const { return so_mark_; }
+  void setSocketMark(uint32_t so_mark) { so_mark_ = so_mark; }
+
+  int fd() const override { return fd_; }
 
   int takeFd() override {
     int fd = fd_;
@@ -89,6 +93,7 @@ public:
 protected:
   int fd_;
   bool local_address_reset_;
+  uint32_t so_mark_;
   Address::InstanceConstSharedPtr local_address_;
   Address::InstanceConstSharedPtr remote_address_;
 };

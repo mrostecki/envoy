@@ -40,10 +40,12 @@ public:
    * Creates a network socket, optionally bound to a specific address
    * @param peer_address supplies the address of the peer.
    * @param source_address supplies an optional local address to bind to.
+   * @param so_mark supplies an optional socket mark to set on the socket, use Network::SO_MARK_NONE
+   * for not setting it.
    * @return int the file descriptor or -1 on error.
    */
   static int createSocket(Address::InstanceConstSharedPtr peer_address,
-                          Address::InstanceConstSharedPtr source_address);
+                          Address::InstanceConstSharedPtr source_address, uint32_t so_mark);
 };
 
 /**
@@ -56,7 +58,7 @@ public:
   ConnectionImpl(Event::DispatcherImpl& dispatcher, int fd,
                  Address::InstanceConstSharedPtr remote_address,
                  Address::InstanceConstSharedPtr local_address, bool using_original_dst,
-                 bool connected);
+                 bool connected, uint32_t so_mark);
 
   ~ConnectionImpl();
 
@@ -86,6 +88,7 @@ public:
   uint32_t bufferLimit() const override { return read_buffer_limit_; }
   bool usingOriginalDst() const override { return using_original_dst_; }
   bool aboveHighWatermark() const override { return above_high_watermark_; }
+  uint32_t socketMark() const override { return so_mark_; }
 
   // Network::BufferSource
   Buffer::Instance& getReadBuffer() override { return *read_buffer_; }
@@ -161,6 +164,7 @@ private:
   uint32_t read_disable_count_{0};
   const bool using_original_dst_;
   bool above_high_watermark_{false};
+  uint32_t so_mark_;
 };
 
 /**
@@ -170,7 +174,7 @@ class ClientConnectionImpl : public ConnectionImpl, virtual public ClientConnect
 public:
   ClientConnectionImpl(Event::DispatcherImpl& dispatcher,
                        Address::InstanceConstSharedPtr remote_address,
-                       const Address::InstanceConstSharedPtr source_address);
+                       const Address::InstanceConstSharedPtr source_address, uint32_t so_mark);
 
   // Network::ClientConnection
   void connect() override { doConnect(); }

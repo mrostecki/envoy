@@ -72,29 +72,30 @@ Network::ConnectionPtr DispatcherImpl::createConnection(Network::AcceptSocketPtr
                                                         Ssl::Context* ssl_ctx) {
   ASSERT(isThreadSafe());
   return Network::ConnectionPtr{
-      ssl_ctx
-          ? new Ssl::ConnectionImpl(*this, socket->takeFd(), socket->remoteAddress(),
-                                    socket->localAddress(), socket->localAddressReset(), true,
-                                    *ssl_ctx, Ssl::ConnectionImpl::InitialState::Server)
-          : new Network::ConnectionImpl(*this, socket->takeFd(), socket->remoteAddress(),
-                                        socket->localAddress(), socket->localAddressReset(), true)};
+      ssl_ctx ? new Ssl::ConnectionImpl(*this, socket->takeFd(), socket->remoteAddress(),
+                                        socket->localAddress(), socket->localAddressReset(), true,
+                                        socket->socketMark(), *ssl_ctx,
+                                        Ssl::ConnectionImpl::InitialState::Server)
+              : new Network::ConnectionImpl(*this, socket->takeFd(), socket->remoteAddress(),
+                                            socket->localAddress(), socket->localAddressReset(),
+                                            true, socket->socketMark())};
 }
 
 Network::ClientConnectionPtr
 DispatcherImpl::createClientConnection(Network::Address::InstanceConstSharedPtr address,
-                                       Network::Address::InstanceConstSharedPtr source_address) {
+                                       Network::Address::InstanceConstSharedPtr source_address,
+                                       uint32_t so_mark) {
   ASSERT(isThreadSafe());
   return Network::ClientConnectionPtr{
-      new Network::ClientConnectionImpl(*this, address, source_address)};
+      new Network::ClientConnectionImpl(*this, address, source_address, so_mark)};
 }
 
-Network::ClientConnectionPtr
-DispatcherImpl::createSslClientConnection(Ssl::ClientContext& ssl_ctx,
-                                          Network::Address::InstanceConstSharedPtr address,
-                                          Network::Address::InstanceConstSharedPtr source_address) {
+Network::ClientConnectionPtr DispatcherImpl::createSslClientConnection(
+    Ssl::ClientContext& ssl_ctx, Network::Address::InstanceConstSharedPtr address,
+    Network::Address::InstanceConstSharedPtr source_address, uint32_t so_mark) {
   ASSERT(isThreadSafe());
   return Network::ClientConnectionPtr{
-      new Ssl::ClientConnectionImpl(*this, ssl_ctx, address, source_address)};
+      new Ssl::ClientConnectionImpl(*this, ssl_ctx, address, source_address, so_mark)};
 }
 
 Network::DnsResolverSharedPtr DispatcherImpl::createDnsResolver(

@@ -33,16 +33,16 @@ public:
 
   Network::ClientConnectionPtr
   createClientConnection(Network::Address::InstanceConstSharedPtr address,
-                         Network::Address::InstanceConstSharedPtr source_address) override {
-    return Network::ClientConnectionPtr{createClientConnection_(address, source_address)};
+                         Network::Address::InstanceConstSharedPtr source_address,
+                         uint32_t so_mark) override {
+    return Network::ClientConnectionPtr{createClientConnection_(address, source_address, so_mark)};
   }
 
-  Network::ClientConnectionPtr
-  createSslClientConnection(Ssl::ClientContext& ssl_ctx,
-                            Network::Address::InstanceConstSharedPtr address,
-                            Network::Address::InstanceConstSharedPtr source_address) override {
+  Network::ClientConnectionPtr createSslClientConnection(
+      Ssl::ClientContext& ssl_ctx, Network::Address::InstanceConstSharedPtr address,
+      Network::Address::InstanceConstSharedPtr source_address, uint32_t so_mark) override {
     return Network::ClientConnectionPtr{
-        createSslClientConnection_(ssl_ctx, address, source_address)};
+        createSslClientConnection_(ssl_ctx, address, source_address, so_mark)};
   }
 
   FileEventPtr createFileEvent(int fd, FileReadyCb cb, FileTriggerType trigger,
@@ -76,13 +76,15 @@ public:
   MOCK_METHOD0(clearDeferredDeleteList, void());
   MOCK_METHOD2(createConnection_,
                Network::Connection*(Network::AcceptSocket* accept_socket, Ssl::Context* ssl_ctx));
-  MOCK_METHOD2(createClientConnection_,
+  MOCK_METHOD3(createClientConnection_,
                Network::ClientConnection*(Network::Address::InstanceConstSharedPtr address,
-                                          Network::Address::InstanceConstSharedPtr source_address));
-  MOCK_METHOD3(createSslClientConnection_,
+                                          Network::Address::InstanceConstSharedPtr source_address,
+                                          uint32_t so_mark));
+  MOCK_METHOD4(createSslClientConnection_,
                Network::ClientConnection*(Ssl::ClientContext& ssl_ctx,
                                           Network::Address::InstanceConstSharedPtr address,
-                                          Network::Address::InstanceConstSharedPtr source_address));
+                                          Network::Address::InstanceConstSharedPtr source_address,
+                                          uint32_t so_mark));
   MOCK_METHOD1(createDnsResolver,
                Network::DnsResolverSharedPtr(
                    const std::vector<Network::Address::InstanceConstSharedPtr>& resolvers));

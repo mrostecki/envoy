@@ -37,11 +37,11 @@ public:
                                           Ssl::Context* ssl_ctx) override;
   Network::ClientConnectionPtr
   createClientConnection(Network::Address::InstanceConstSharedPtr address,
-                         Network::Address::InstanceConstSharedPtr source_address) override;
-  Network::ClientConnectionPtr
-  createSslClientConnection(Ssl::ClientContext& ssl_ctx,
-                            Network::Address::InstanceConstSharedPtr address,
-                            Network::Address::InstanceConstSharedPtr source_address) override;
+                         Network::Address::InstanceConstSharedPtr source_address,
+                         uint32_t so_mark) override;
+  Network::ClientConnectionPtr createSslClientConnection(
+      Ssl::ClientContext& ssl_ctx, Network::Address::InstanceConstSharedPtr address,
+      Network::Address::InstanceConstSharedPtr source_address, uint32_t so_mark) override;
   Network::DnsResolverSharedPtr createDnsResolver(
       const std::vector<Network::Address::InstanceConstSharedPtr>& resolvers) override;
   FileEventPtr createFileEvent(int fd, FileReadyCb cb, FileTriggerType trigger,

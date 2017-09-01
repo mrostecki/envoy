@@ -53,7 +53,8 @@ private:
         : HostImpl(cluster, hostname, address, false, 1, ""), parent_(parent) {}
 
     // Upstream::Host
-    CreateConnectionData createConnection(Event::Dispatcher& dispatcher) const override;
+    CreateConnectionData createConnection(Event::Dispatcher& dispatcher,
+                                          uint32_t so_mark) const override;
 
     LogicalDnsCluster& parent_;
   };

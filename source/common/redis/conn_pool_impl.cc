@@ -24,7 +24,7 @@ ClientPtr ClientImpl::create(Upstream::HostConstSharedPtr host, Event::Dispatche
 
   std::unique_ptr<ClientImpl> client(
       new ClientImpl(host, dispatcher, std::move(encoder), decoder_factory, config));
-  client->connection_ = host->createConnection(dispatcher).connection_;
+  client->connection_ = host->createConnection(dispatcher, Network::SO_MARK_NONE).connection_;
   client->connection_->addConnectionCallbacks(*client);
   client->connection_->addReadFilter(Network::ReadFilterSharedPtr{new UpstreamReadFilter(*client)});
   client->connection_->connect();

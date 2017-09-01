@@ -130,7 +130,7 @@ void TcpProxyIntegrationTest::sendAndReceiveTlsData(const std::string& data_to_s
             Ssl::getSslAddress(version_, lookupPort("tcp_proxy_with_tls_termination"));
         context = Ssl::createClientSslContext(false, false, *context_manager);
         ssl_client = dispatcher_->createSslClientConnection(
-            *context, address, Network::Address::InstanceConstSharedPtr());
+            *context, address, Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
       },
       // Perform the SSL handshake.  Loopback is whitelisted in tcp_proxy.json for the ssl_auth
       // filter so there will be no pause waiting on auth data.

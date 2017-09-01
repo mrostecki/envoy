@@ -172,7 +172,8 @@ public:
    */
   virtual Http::ConnectionPool::InstancePtr allocateConnPool(Event::Dispatcher& dispatcher,
                                                              HostConstSharedPtr host,
-                                                             ResourcePriority priority) PURE;
+                                                             ResourcePriority priority,
+                                                             uint32_t so_mark) PURE;
 
   /**
    * Allocate a cluster from configuration proto.

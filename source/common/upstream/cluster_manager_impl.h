@@ -48,7 +48,8 @@ public:
                          AccessLog::AccessLogManager& log_manager) override;
   Http::ConnectionPool::InstancePtr allocateConnPool(Event::Dispatcher& dispatcher,
                                                      HostConstSharedPtr host,
-                                                     ResourcePriority priority) override;
+                                                     ResourcePriority priority,
+                                                     uint32_t so_mark) override;
   ClusterSharedPtr clusterFromProto(const envoy::api::v2::Cluster& cluster, ClusterManager& cm,
                                     Outlier::EventLoggerSharedPtr outlier_event_logger,
                                     bool added_via_api) override;
@@ -165,7 +166,11 @@ private:
    */
   struct ThreadLocalClusterManagerImpl : public ThreadLocal::ThreadLocalObject {
     struct ConnPoolsContainer {
-      typedef std::array<Http::ConnectionPool::InstancePtr, NumResourcePriorities> ConnPools;
+      typedef std::unordered_map<uint64_t, Http::ConnectionPool::InstancePtr> ConnPools;
+
+      uint64_t key(ResourcePriority priority, uint32_t so_mark) {
+        return uint64_t(priority) << 32 | so_mark;
+      }
 
       ConnPools pools_;
       uint64_t drains_remaining_{};

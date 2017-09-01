@@ -66,6 +66,11 @@ enum class ConnectionCloseType {
 };
 
 /**
+ * Special socket mark value for the default value (zero).
+ */
+const uint32_t SO_MARK_NONE = 0;
+
+/**
  * An abstract raw connection. Free the connection or call close() to disconnect.
  */
 class Connection : public Event::DeferredDeletable, public FilterManager {
@@ -194,6 +199,11 @@ public:
    * @return boolean telling if the connection is currently above the high watermark.
    */
   virtual bool aboveHighWatermark() const PURE;
+
+  /**
+   * Get the socket mark value associated with the connection.
+   */
+  virtual uint32_t socketMark() const PURE;
 };
 
 typedef std::unique_ptr<Connection> ConnectionPtr;

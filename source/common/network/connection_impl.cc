@@ -35,7 +35,8 @@ Address::InstanceConstSharedPtr getNullLocalAddress(const Address::Instance& add
 } // namespace
 
 int ConnectionImplUtility::createSocket(Address::InstanceConstSharedPtr address,
-                                        const Address::InstanceConstSharedPtr source_address) {
+                                        const Address::InstanceConstSharedPtr source_address,
+                                        uint32_t so_mark) {
   const int fd = address->socket(Address::SocketType::Stream);
   if (fd >= 0 && source_address != nullptr) {
     int rc = source_address->bind(fd);
@@ -45,6 +46,22 @@ int ConnectionImplUtility::createSocket(Address::InstanceConstSharedPtr address,
                      strerror(errno));
     }
     RELEASE_ASSERT(rc >= 0);
+  }
+  if (so_mark != Network::SO_MARK_NONE) {
+    int rc = setsockopt(fd, SOL_SOCKET, SO_MARK, &so_mark, sizeof(so_mark));
+    if (rc < 0) {
+      if (errno == EPERM) {
+        // Do not assert out in this case so that we can run tests without CAP_NET_ADMIN.
+        ENVOY_LOG_MISC(
+            critical,
+            "Failed to set socket option SO_MARK to {}, capability CAP_NET_ADMIN needed: {}",
+            so_mark, strerror(errno));
+      } else {
+        ENVOY_LOG_MISC(critical, "Socket option failure. Failed to set SO_MARK to {}: {}", so_mark,
+                       strerror(errno));
+        RELEASE_ASSERT(rc >= 0);
+      }
+    }
   }
   return fd;
 }
@@ -72,14 +89,14 @@ std::atomic<uint64_t> ConnectionImpl::next_global_id_;
 ConnectionImpl::ConnectionImpl(Event::DispatcherImpl& dispatcher, int fd,
                                Address::InstanceConstSharedPtr remote_address,
                                Address::InstanceConstSharedPtr local_address,
-                               bool using_original_dst, bool connected)
+                               bool using_original_dst, bool connected, uint32_t so_mark)
     : filter_manager_(*this, *this), remote_address_(remote_address), local_address_(local_address),
       read_buffer_(dispatcher.getBufferFactory().create()),
       write_buffer_(Buffer::InstancePtr{dispatcher.getBufferFactory().create()},
                     [this]() -> void { this->onLowWatermark(); },
                     [this]() -> void { this->onHighWatermark(); }),
       dispatcher_(dispatcher), fd_(fd), id_(++next_global_id_),
-      using_original_dst_(using_original_dst) {
+      using_original_dst_(using_original_dst), so_mark_(so_mark) {
 
   // Treat the lack of a valid fd (which in practice only happens if we run out of FDs) as an OOM
   // condition and just crash.
@@ -552,9 +569,10 @@ void ConnectionImpl::updateWriteBufferStats(uint64_t num_written, uint64_t new_s
 
 ClientConnectionImpl::ClientConnectionImpl(
     Event::DispatcherImpl& dispatcher, Address::InstanceConstSharedPtr address,
-    const Network::Address::InstanceConstSharedPtr source_address)
-    : ConnectionImpl(dispatcher, ConnectionImplUtility::createSocket(address, source_address),
-                     address, getNullLocalAddress(*address), false, false) {}
+    const Network::Address::InstanceConstSharedPtr source_address, uint32_t so_mark)
+    : ConnectionImpl(dispatcher,
+                     ConnectionImplUtility::createSocket(address, source_address, so_mark), address,
+                     getNullLocalAddress(*address), false, false, so_mark) {}
 
 } // namespace Network
 } // namespace Envoy

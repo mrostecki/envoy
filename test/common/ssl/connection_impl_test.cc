@@ -58,7 +58,8 @@ void testUtil(const std::string& client_ctx_json, const std::string& server_ctx_
   ClientContextConfigImpl client_ctx_config(*client_ctx_loader);
   ClientContextPtr client_ctx(manager.createSslClientContext(stats_store, client_ctx_config));
   Network::ClientConnectionPtr client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
   client_connection->connect();
 
   Network::ConnectionPtr server_connection;
@@ -344,7 +345,8 @@ TEST_P(SslConnectionImplTest, ClientAuthMultipleCAs) {
   ClientContextConfigImpl client_ctx_config(*client_ctx_loader);
   ClientContextPtr client_ctx(manager.createSslClientContext(stats_store, client_ctx_config));
   Network::ClientConnectionPtr client_connection = dispatcher.createSslClientConnection(
-      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      *client_ctx, socket.localAddress(), Network::Address::InstanceConstSharedPtr(),
+      Network::SO_MARK_NONE);
 
   // Verify that server sent list with 2 acceptable client certificate CA names.
   Ssl::ConnectionImpl* ssl_connection =
@@ -412,7 +414,7 @@ TEST_P(SslConnectionImplTest, SslError) {
   Network::ListenerPtr listener = dispatcher.createListener(socket, callbacks, true);
 
   Network::ClientConnectionPtr client_connection = dispatcher.createClientConnection(
-      socket.localAddress(), Network::Address::InstanceConstSharedPtr());
+      socket.localAddress(), Network::Address::InstanceConstSharedPtr(), Network::SO_MARK_NONE);
   client_connection->connect();
   Buffer::OwnedImpl bad_data("bad_handshake_data");
   client_connection->write(bad_data);
@@ -458,7 +460,7 @@ public:
     client_ctx_ = manager_->createSslClientContext(stats_store_, *client_ctx_config_);
 
     client_connection_ = dispatcher_->createSslClientConnection(
-        *client_ctx_, socket_.localAddress(), source_address_);
+        *client_ctx_, socket_.localAddress(), source_address_, 0);
     client_connection_->addConnectionCallbacks(client_callbacks_);
     client_connection_->connect();
     read_filter_.reset(new Network::MockReadFilter());

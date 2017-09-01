@@ -44,7 +44,7 @@ public:
             dispatcher,
             Upstream::HostSharedPtr{new Upstream::HostImpl(
                 cluster, "", Network::Utility::resolveUrl("tcp://127.0.0.1:9000"), false, 1, "")},
-            Upstream::ResourcePriority::Default),
+            Upstream::ResourcePriority::Default, Network::SO_MARK_NONE),
         mock_dispatcher_(dispatcher) {}
 
   ~ConnPoolImplForTest() {
@@ -91,7 +91,7 @@ public:
                                                        },
                                                        nullptr);
 
-    EXPECT_CALL(mock_dispatcher_, createClientConnection_(_, _))
+    EXPECT_CALL(mock_dispatcher_, createClientConnection_(_, _, _))
         .WillOnce(Return(test_client.connection_));
     EXPECT_CALL(*this, createCodecClient_()).WillOnce(Return(test_client.codec_client_));
     EXPECT_CALL(*test_client.connect_timer_, enableTimer(_));
