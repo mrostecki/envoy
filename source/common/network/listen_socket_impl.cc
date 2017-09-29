@@ -30,6 +30,11 @@ void ListenSocketImpl::doBind() {
   }
 }
 
+bool ListenSocketImpl::setSocketMark(int so_mark) {
+  // Requires CAP_NET_ADMIN to succeed.
+  return setsockopt(fd_, SOL_SOCKET, SO_MARK, &so_mark, sizeof(so_mark)) == 0;
+}
+
 TcpListenSocket::TcpListenSocket(Address::InstanceConstSharedPtr address, bool bind_to_port) {
   local_address_ = address;
   fd_ = local_address_->socket(Address::SocketType::Stream);

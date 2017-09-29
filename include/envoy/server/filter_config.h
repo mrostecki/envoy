@@ -118,6 +118,14 @@ public:
   virtual Server::Admin& admin() PURE;
 };
 
+class ListenerFactoryContext : public FactoryContext {
+public:
+  /**
+   * Store the socket mark to be set on the listen socket before listening.
+   */
+  virtual void setListenSocketMark(int so_mark) PURE;
+};
+
 enum class ListenerFilterType { Accept, Connect, Both };
 
 /**
@@ -148,14 +156,14 @@ public:
    * @return ListenerFilterFactoryCb the factory creation function.
    */
   virtual ListenerFilterFactoryCb createFilterFactory(const Json::Object& config,
-                                                      FactoryContext& context) PURE;
+                                                      ListenerFactoryContext& context) PURE;
 
   /**
    * v2 variant of createFilterFactory(..), where filter configs are specified as proto. This may be
    * optionally implemented today, but will in the future become compulsory once v1 is deprecated.
    */
   virtual ListenerFilterFactoryCb createFilterFactoryFromProto(const Protobuf::Message& config,
-                                                               FactoryContext& context) {
+                                                               ListenerFactoryContext& context) {
     UNREFERENCED_PARAMETER(config);
     UNREFERENCED_PARAMETER(context);
     NOT_IMPLEMENTED;

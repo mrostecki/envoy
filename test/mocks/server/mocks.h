@@ -147,7 +147,7 @@ public:
   MOCK_METHOD2(createListenerFilterFactoryList,
                std::vector<Configuration::ListenerFilterFactoryCb>(
                    const Protobuf::RepeatedPtrField<envoy::api::v2::Filter>&,
-                   Configuration::FactoryContext& context));
+                   Configuration::ListenerFactoryContext& context));
   MOCK_METHOD2(createListenSocket,
                Network::ListenSocketSharedPtr(Network::Address::InstanceConstSharedPtr address,
                                               bool bind_to_port));
@@ -358,6 +358,11 @@ public:
   testing::NiceMock<ThreadLocal::MockInstance> thread_local_;
   Singleton::ManagerPtr singleton_manager_;
   testing::NiceMock<MockAdmin> admin_;
+};
+
+class MockListenerFactoryContext : public MockFactoryContext {
+public:
+  MOCK_METHOD1(setListenSocketMark, void(int so_mark));
 };
 
 } // namespace Configuration

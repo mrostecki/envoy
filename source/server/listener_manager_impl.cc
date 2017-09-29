@@ -57,7 +57,7 @@ ProdListenerComponentFactory::createFilterFactoryList_(
 std::vector<Configuration::ListenerFilterFactoryCb>
 ProdListenerComponentFactory::createListenerFilterFactoryList_(
     const Protobuf::RepeatedPtrField<envoy::api::v2::Filter>& filters,
-    Configuration::FactoryContext& context) {
+    Configuration::ListenerFactoryContext& context) {
   std::vector<Configuration::ListenerFilterFactoryCb> ret;
   for (ssize_t i = 0; i < filters.size(); i++) {
     const std::string string_type = filters[i].deprecated_v1().type();
@@ -210,6 +210,12 @@ Init::Manager& ListenerImpl::initManager() {
 void ListenerImpl::setSocket(const Network::ListenSocketSharedPtr& socket) {
   ASSERT(!socket_);
   socket_ = socket;
+  // Server config validation sets nullptr sockets.
+  if (socket_) {
+    bool ok = socket_->setSocketMark(listen_socket_mark_);
+    ENVOY_LOG(info, "{}: Setting socket MARK to {:x} {}", name_, listen_socket_mark_,
+	      ok ? "succeeded" : "failed");
+  }
 }
 
 ListenerManagerImpl::ListenerManagerImpl(Instance& server,
