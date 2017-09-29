@@ -16,7 +16,8 @@ namespace Configuration {
 class OriginalDstConfigFactory : public NamedListenerFilterConfigFactory {
 public:
   // NamedListenerFilterConfigFactory
-  ListenerFilterFactoryCb createFilterFactory(const Json::Object&, FactoryContext&) override {
+  ListenerFilterFactoryCb createFilterFactory(const Json::Object&,
+                                              ListenerFactoryContext&) override {
     return [](Network::ListenerFilterManager& filter_manager) -> void {
       filter_manager.addAcceptFilter(Network::ListenerFilterSharedPtr{new Filter::OriginalDst()});
     };

@@ -29,6 +29,12 @@ public:
    * Close the underlying socket.
    */
   virtual void close() PURE;
+
+  /**
+   * Set the socket mark of the listen socket.
+   * @return boolean success/failure.
+   */
+  virtual bool setSocketMark(int so_mark) PURE;
 };
 
 typedef std::unique_ptr<ListenSocket> ListenSocketPtr;

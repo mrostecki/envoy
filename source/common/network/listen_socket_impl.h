@@ -21,6 +21,8 @@ public:
   Address::InstanceConstSharedPtr localAddress() const override { return local_address_; }
   int fd() override { return fd_; }
 
+  bool setSocketMark(int so_mark) override;
+
   void close() override {
     if (fd_ != -1) {
       ::close(fd_);

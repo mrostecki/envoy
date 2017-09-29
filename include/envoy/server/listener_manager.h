@@ -48,7 +48,7 @@ public:
    */
   virtual std::vector<Configuration::ListenerFilterFactoryCb>
   createListenerFilterFactoryList(const Protobuf::RepeatedPtrField<envoy::api::v2::Filter>& filters,
-                                  Configuration::FactoryContext& context) PURE;
+                                  Configuration::ListenerFactoryContext& context) PURE;
 
   /**
    * @return DrainManagerPtr a new drain manager.

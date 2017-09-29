@@ -35,7 +35,7 @@ public:
    */
   static std::vector<Configuration::ListenerFilterFactoryCb> createListenerFilterFactoryList_(
       const Protobuf::RepeatedPtrField<envoy::api::v2::Filter>& filters,
-      Configuration::FactoryContext& context);
+      Configuration::ListenerFactoryContext& context);
 
   // Server::ListenerComponentFactory
   std::vector<Configuration::NetworkFilterFactoryCb>
@@ -45,7 +45,7 @@ public:
   }
   std::vector<Configuration::ListenerFilterFactoryCb>
   createListenerFilterFactoryList(const Protobuf::RepeatedPtrField<envoy::api::v2::Filter>& filters,
-                                  Configuration::FactoryContext& context) override {
+                                  Configuration::ListenerFactoryContext& context) override {
     return createListenerFilterFactoryList_(filters, context);
   }
 
@@ -166,7 +166,7 @@ private:
  * Maps proto config to runtime config for a listener with a network filter chain.
  */
 class ListenerImpl : public Listener,
-                     public Configuration::FactoryContext,
+                     public Configuration::ListenerFactoryContext,
                      public Network::DrainDecision,
                      public Network::FilterChainFactory,
                      Logger::Loggable<Logger::Id::config> {
@@ -216,7 +216,7 @@ public:
   uint64_t listenerTag() const override { return listener_tag_; }
   const std::string& name() const override { return name_; }
 
-  // Server::Configuration::FactoryContext
+  // Server::Configuration::ListenerFactoryContext
   AccessLog::AccessLogManager& accessLogManager() override {
     return parent_.server_.accessLogManager();
   }
@@ -237,6 +237,7 @@ public:
   Singleton::Manager& singletonManager() override { return parent_.server_.singletonManager(); }
   ThreadLocal::Instance& threadLocal() override { return parent_.server_.threadLocal(); }
   Admin& admin() override { return parent_.server_.admin(); }
+  void setListenSocketMark(int so_mark) override { listen_socket_mark_ = so_mark; }
 
   // Network::DrainDecision
   bool drainClose() const override;
@@ -266,6 +267,7 @@ private:
   std::vector<Configuration::ListenerFilterFactoryCb> listener_filter_factories_;
   DrainManagerPtr local_drain_manager_;
   bool saw_listener_create_failure_{};
+  int listen_socket_mark_{0};
 };
 
 } // namespace Server
