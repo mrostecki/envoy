@@ -30,6 +30,7 @@ ProdListenerComponentFactory::createFilterFactoryList_(
     ENVOY_LOG(debug, "    name: {}", string_name);
     const Json::ObjectSharedPtr filter_config =
         MessageUtil::getJsonObjectFromMessage(proto_config.config());
+    ENVOY_LOG(debug, "  config: {}", filter_config->asJsonString());
 
     // Now see if there is a factory that will accept the config.
     auto& factory =
@@ -57,9 +58,10 @@ ProdListenerComponentFactory::createListenerFilterFactoryList_(
     const std::string string_type = filters[i].deprecated_v1().type();
     const std::string string_name = filters[i].name();
     const auto& proto_config = filters[i].config();
-    ENVOY_LOG(info, "  listener filter #{}:", i);
-    ENVOY_LOG(info, "             name: {}", string_name);
+    ENVOY_LOG(debug, "  listener filter #{}:", i);
+    ENVOY_LOG(debug, "             name: {}", string_name);
     const Json::ObjectSharedPtr filter_config = MessageUtil::getJsonObjectFromMessage(proto_config);
+    ENVOY_LOG(debug, "           config: {}", filter_config->asJsonString());
 
     // Now see if there is a factory that will accept the config.
     Configuration::NamedListenerFilterConfigFactory* factory =
