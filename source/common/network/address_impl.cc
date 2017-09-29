@@ -33,7 +33,14 @@ Address::InstanceConstSharedPtr addressFromSockAddr(const sockaddr_storage& ss, 
     RELEASE_ASSERT(ss_len == 0 || ss_len == sizeof(sockaddr_in6));
     const struct sockaddr_in6* sin6 = reinterpret_cast<const struct sockaddr_in6*>(&ss);
     ASSERT(AF_INET6 == sin6->sin6_family);
-    return std::make_shared<Address::Ipv6Instance>(*sin6);
+    if (IN6_IS_ADDR_V4MAPPED(&sin6->sin6_addr)) {
+      struct sockaddr_in sin = { .sin_family = AF_INET, .sin_port = sin6->sin6_port,
+				 .sin_addr = { .s_addr = sin6->sin6_addr.s6_addr32[3] },
+				 .sin_zero = {} };
+      return std::make_shared<Address::Ipv4Instance>(&sin);
+    } else {
+      return std::make_shared<Address::Ipv6Instance>(*sin6);
+    }
   }
   case AF_UNIX: {
     const struct sockaddr_un* sun = reinterpret_cast<const struct sockaddr_un*>(&ss);
@@ -215,14 +222,7 @@ int Ipv6Instance::connect(int fd) const {
                    sizeof(ip_.ipv6_.address_));
 }
 
-int Ipv6Instance::socket(SocketType type) const {
-  const int fd = socketFromSocketType(type);
-
-  // Setting IPV6_V6ONLY resticts the IPv6 socket to IPv6 connections only.
-  const int v6only = 1;
-  RELEASE_ASSERT(::setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, sizeof(v6only)) != -1);
-  return fd;
-}
+int Ipv6Instance::socket(SocketType type) const { return  socketFromSocketType(type); }
 
 PipeInstance::PipeInstance(const sockaddr_un* address) : InstanceBase(Type::Pipe) {
   if (address->sun_path[0] == '\0') {
