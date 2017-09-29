@@ -26,6 +26,7 @@ ProdListenerComponentFactory::createFilterFactoryList_(
     ENVOY_LOG(info, "  filter #{}:", i);
     ENVOY_LOG(info, "    name: {}", string_name);
     const Json::ObjectSharedPtr filter_config = MessageUtil::getJsonObjectFromMessage(proto_config);
+    ENVOY_LOG(info, "  config: {}", filter_config->asJsonString());
 
     // Now see if there is a factory that will accept the config.
     Configuration::NamedNetworkFilterConfigFactory* factory =
@@ -65,6 +66,7 @@ ProdListenerComponentFactory::createListenerFilterFactoryList_(
     ENVOY_LOG(info, "  listener filter #{}:", i);
     ENVOY_LOG(info, "             name: {}", string_name);
     const Json::ObjectSharedPtr filter_config = MessageUtil::getJsonObjectFromMessage(proto_config);
+    ENVOY_LOG(info, "           config: {}", filter_config->asJsonString());
 
     // Now see if there is a factory that will accept the config.
     Configuration::NamedListenerFilterConfigFactory* factory =
