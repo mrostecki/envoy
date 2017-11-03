@@ -280,6 +280,9 @@ public:
   struct Features {
     // Whether the upstream supports HTTP2. This is used when creating connection pools.
     static const uint64_t HTTP2 = 0x1;
+    // Use the downstream protocol (HTTP1.1, HTTP2) for upstream connections as well, if available.
+    // This is used when creating connection pools.
+    static const uint64_t USE_DOWNSTREAM_PROTO = 0x2;
   };
 
   virtual ~ClusterInfo() {}

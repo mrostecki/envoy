@@ -395,6 +395,7 @@ ThreadLocalCluster* ClusterManagerImpl::get(const std::string& cluster) {
 
 Http::ConnectionPool::Instance*
 ClusterManagerImpl::httpConnPoolForCluster(const std::string& cluster, ResourcePriority priority,
+                                           enum Http::Protocol protocol,
                                            LoadBalancerContext* context) {
   ThreadLocalClusterManagerImpl& cluster_manager = tls_->getTyped<ThreadLocalClusterManagerImpl>();
 
@@ -404,7 +405,7 @@ ClusterManagerImpl::httpConnPoolForCluster(const std::string& cluster, ResourceP
   }
 
   // Select a host and create a connection pool for it if it does not already exist.
-  return entry->second->connPool(priority, context);
+  return entry->second->connPool(priority, protocol, context);
 }
 
 void ClusterManagerImpl::postThreadLocalClusterUpdate(
@@ -660,7 +661,7 @@ ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::~ClusterEntry()
 
 Http::ConnectionPool::Instance*
 ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::connPool(
-    ResourcePriority priority, LoadBalancerContext* context) {
+    ResourcePriority priority, enum Http::Protocol protocol, LoadBalancerContext* context) {
   HostConstSharedPtr host = lb_->chooseHost(context);
   if (!host) {
     ENVOY_LOG(debug, "no healthy host for HTTP connection pool");
@@ -674,10 +675,10 @@ ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::connPool(
                          : Network::SO_MARK_NONE;
 
   ConnPoolsContainer& container = parent_.host_http_conn_pool_map_[host];
-  const auto key = container.key(priority, so_mark);
+  const auto key = container.key(priority, so_mark, protocol);
   if (!container.pools_[key]) {
     container.pools_[key] = parent_.parent_.factory_.allocateConnPool(
-        parent_.thread_local_dispatcher_, host, priority, so_mark);
+        parent_.thread_local_dispatcher_, host, priority, so_mark, protocol);
   }
 
   return container.pools_[key].get();
@@ -693,8 +694,9 @@ ClusterManagerPtr ProdClusterManagerFactory::clusterManagerFromProto(
 
 Http::ConnectionPool::InstancePtr
 ProdClusterManagerFactory::allocateConnPool(Event::Dispatcher& dispatcher, HostConstSharedPtr host,
-                                            ResourcePriority priority, uint32_t so_mark) {
-  if ((host->cluster().features() & ClusterInfo::Features::HTTP2) &&
+                                            ResourcePriority priority, uint32_t so_mark,
+                                            enum Http::Protocol protocol) {
+  if (protocol == Http::Protocol::Http2 &&
       runtime_.snapshot().featureEnabled("upstream.use_http2", 100)) {
     return Http::ConnectionPool::InstancePtr{
         new Http::Http2::ProdConnPoolImpl(dispatcher, host, priority, so_mark)};

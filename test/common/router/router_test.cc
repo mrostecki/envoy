@@ -152,7 +152,7 @@ TEST_F(RouterTest, ClusterNotFound) {
 TEST_F(RouterTest, PoolFailureWithPriority) {
   ON_CALL(callbacks_.route_->route_entry_, priority())
       .WillByDefault(Return(Upstream::ResourcePriority::High));
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, Upstream::ResourcePriority::High, &router_));
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, Upstream::ResourcePriority::High, _, &router_));
 
   EXPECT_CALL(cm_.conn_pool_, newStream(_, _))
       .WillOnce(Invoke([&](Http::StreamDecoder&, Http::ConnectionPool::Callbacks& callbacks)
@@ -184,9 +184,9 @@ TEST_F(RouterTest, HashPolicy) {
       .WillByDefault(Return(&callbacks_.route_->route_entry_.hash_policy_));
   EXPECT_CALL(callbacks_.route_->route_entry_.hash_policy_, generateHash(_, _, _))
       .WillOnce(Return(Optional<uint64_t>(10)));
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _))
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _))
       .WillOnce(
-          Invoke([&](const std::string&, Upstream::ResourcePriority,
+          Invoke([&](const std::string&, Upstream::ResourcePriority, enum Http::Protocol,
                      Upstream::LoadBalancerContext* context) -> Http::ConnectionPool::Instance* {
             EXPECT_EQ(10UL, context->computeHashKey().value());
             return &cm_.conn_pool_;
@@ -209,9 +209,9 @@ TEST_F(RouterTest, HashPolicyNoHash) {
       .WillByDefault(Return(&callbacks_.route_->route_entry_.hash_policy_));
   EXPECT_CALL(callbacks_.route_->route_entry_.hash_policy_, generateHash(_, _, _))
       .WillOnce(Return(Optional<uint64_t>()));
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, &router_))
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, &router_))
       .WillOnce(
-          Invoke([&](const std::string&, Upstream::ResourcePriority,
+          Invoke([&](const std::string&, Upstream::ResourcePriority, enum Http::Protocol,
                      Upstream::LoadBalancerContext* context) -> Http::ConnectionPool::Instance* {
             EXPECT_EQ(false, context->computeHashKey().valid());
             return &cm_.conn_pool_;
@@ -243,9 +243,9 @@ TEST_F(RouterTest, AddCookie) {
         return &cancellable_;
       }));
 
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _))
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _))
       .WillOnce(
-          Invoke([&](const std::string&, Upstream::ResourcePriority,
+          Invoke([&](const std::string&, Upstream::ResourcePriority, enum Http::Protocol,
                      Upstream::LoadBalancerContext* context) -> Http::ConnectionPool::Instance* {
             EXPECT_EQ(10UL, context->computeHashKey().value());
             return &cm_.conn_pool_;
@@ -290,9 +290,9 @@ TEST_F(RouterTest, AddCookieNoDuplicate) {
         return &cancellable_;
       }));
 
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _))
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _))
       .WillOnce(
-          Invoke([&](const std::string&, Upstream::ResourcePriority,
+          Invoke([&](const std::string&, Upstream::ResourcePriority, enum Http::Protocol,
                      Upstream::LoadBalancerContext* context) -> Http::ConnectionPool::Instance* {
             EXPECT_EQ(10UL, context->computeHashKey().value());
             return &cm_.conn_pool_;
@@ -337,9 +337,9 @@ TEST_F(RouterTest, AddMultipleCookies) {
         return &cancellable_;
       }));
 
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _))
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _))
       .WillOnce(
-          Invoke([&](const std::string&, Upstream::ResourcePriority,
+          Invoke([&](const std::string&, Upstream::ResourcePriority, enum Http::Protocol,
                      Upstream::LoadBalancerContext* context) -> Http::ConnectionPool::Instance* {
             EXPECT_EQ(10UL, context->computeHashKey().value());
             return &cm_.conn_pool_;
@@ -386,9 +386,9 @@ TEST_F(RouterTest, MetadataMatchCriteria) {
 
   ON_CALL(callbacks_.route_->route_entry_, metadataMatchCriteria())
       .WillByDefault(Return(&callbacks_.route_->route_entry_.metadata_matches_criteria_));
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _))
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _))
       .WillOnce(
-          Invoke([&](const std::string&, Upstream::ResourcePriority,
+          Invoke([&](const std::string&, Upstream::ResourcePriority, enum Http::Protocol,
                      Upstream::LoadBalancerContext* context) -> Http::ConnectionPool::Instance* {
             EXPECT_EQ(context->metadataMatchCriteria(),
                       &callbacks_.route_->route_entry_.metadata_matches_criteria_);
@@ -408,9 +408,9 @@ TEST_F(RouterTest, MetadataMatchCriteria) {
 
 TEST_F(RouterTest, NoMetadataMatchCriteria) {
   ON_CALL(callbacks_.route_->route_entry_, metadataMatchCriteria()).WillByDefault(Return(nullptr));
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _))
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _))
       .WillOnce(
-          Invoke([&](const std::string&, Upstream::ResourcePriority,
+          Invoke([&](const std::string&, Upstream::ResourcePriority, enum Http::Protocol,
                      Upstream::LoadBalancerContext* context) -> Http::ConnectionPool::Instance* {
             EXPECT_EQ(context->metadataMatchCriteria(), nullptr);
             return &cm_.conn_pool_;
@@ -442,7 +442,7 @@ TEST_F(RouterTest, CancelBeforeBoundToPool) {
 }
 
 TEST_F(RouterTest, NoHost) {
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _)).WillOnce(Return(nullptr));
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _)).WillOnce(Return(nullptr));
 
   Http::TestHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "19"}, {"content-type", "text/plain"}};
@@ -945,7 +945,7 @@ TEST_F(RouterTest, RetryNoneHealthy) {
   EXPECT_CALL(cm_.conn_pool_.host_->outlier_detector_, putHttpResponseCode(503));
   encoder1.stream_.resetStream(Http::StreamResetReason::LocalReset);
 
-  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _)).WillOnce(Return(nullptr));
+  EXPECT_CALL(cm_, httpConnPoolForCluster(_, _, _, _)).WillOnce(Return(nullptr));
   Http::TestHeaderMapImpl response_headers{
       {":status", "503"}, {"content-length", "19"}, {"content-type", "text/plain"}};
   EXPECT_CALL(callbacks_, encodeHeaders_(HeaderMapEqualRef(&response_headers), false));

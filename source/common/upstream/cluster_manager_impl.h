@@ -50,8 +50,8 @@ public:
                                             AccessLog::AccessLogManager& log_manager) override;
   Http::ConnectionPool::InstancePtr allocateConnPool(Event::Dispatcher& dispatcher,
                                                      HostConstSharedPtr host,
-                                                     ResourcePriority priority,
-                                                     uint32_t so_mark) override;
+                                                     ResourcePriority priority, uint32_t so_mark,
+                                                     enum Http::Protocol protocol) override;
   ClusterSharedPtr clusterFromProto(const envoy::api::v2::Cluster& cluster, ClusterManager& cm,
                                     Outlier::EventLoggerSharedPtr outlier_event_logger,
                                     bool added_via_api) override;
@@ -159,6 +159,7 @@ public:
   ThreadLocalCluster* get(const std::string& cluster) override;
   Http::ConnectionPool::Instance* httpConnPoolForCluster(const std::string& cluster,
                                                          ResourcePriority priority,
+                                                         enum Http::Protocol protocol,
                                                          LoadBalancerContext* context) override;
   Host::CreateConnectionData tcpConnForCluster(const std::string& cluster,
                                                LoadBalancerContext* context) override;
@@ -185,8 +186,8 @@ private:
     struct ConnPoolsContainer {
       typedef std::unordered_map<uint64_t, Http::ConnectionPool::InstancePtr> ConnPools;
 
-      uint64_t key(ResourcePriority priority, uint32_t so_mark) {
-        return uint64_t(priority) << 32 | so_mark;
+      uint64_t key(ResourcePriority priority, uint32_t so_mark, enum Http::Protocol protocol) {
+        return uint64_t(protocol) << 40 | uint64_t(priority) << 32 | so_mark;
       }
 
       ConnPools pools_;
@@ -198,6 +199,7 @@ private:
       ~ClusterEntry();
 
       Http::ConnectionPool::Instance* connPool(ResourcePriority priority,
+                                               enum Http::Protocol protocol,
                                                LoadBalancerContext* context);
 
       // Upstream::ThreadLocalCluster

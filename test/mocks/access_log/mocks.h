@@ -66,6 +66,7 @@ public:
   SystemTime start_time_;
   Optional<std::chrono::microseconds> request_received_duration_;
   Optional<std::chrono::microseconds> response_received_duration_;
+  Optional<Http::Protocol> protocol_;
 };
 
 } // namespace AccessLog

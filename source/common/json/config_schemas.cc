@@ -1497,7 +1497,7 @@ const std::string Json::Schema::CLUSTER_SCHEMA(R"EOF(
       "ssl_context" : {"$ref" : "#/definitions/ssl_context"},
       "features" : {
         "type" : "string",
-        "enum" : ["http2"]
+        "enum" : ["http2", "auto_http2"]
       },
       "http2_settings" : {
         "type" : "object",

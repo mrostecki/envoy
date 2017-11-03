@@ -75,6 +75,7 @@ public:
    */
   virtual Http::ConnectionPool::Instance* httpConnPoolForCluster(const std::string& cluster,
                                                                  ResourcePriority priority,
+                                                                 enum Http::Protocol protocol,
                                                                  LoadBalancerContext* context) PURE;
 
   /**
@@ -181,10 +182,9 @@ public:
   /**
    * Allocate an HTTP connection pool.
    */
-  virtual Http::ConnectionPool::InstancePtr allocateConnPool(Event::Dispatcher& dispatcher,
-                                                             HostConstSharedPtr host,
-                                                             ResourcePriority priority,
-                                                             uint32_t so_mark) PURE;
+  virtual Http::ConnectionPool::InstancePtr
+  allocateConnPool(Event::Dispatcher& dispatcher, HostConstSharedPtr host,
+                   ResourcePriority priority, uint32_t so_mark, enum Http::Protocol protocol) PURE;
 
   /**
    * Allocate a cluster from configuration proto.
