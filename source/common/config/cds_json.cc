@@ -159,7 +159,12 @@ void CdsJson::translateCluster(const Json::Object& json_cluster,
                                                 *cluster.mutable_tls_context());
   }
 
+  if (json_cluster.getString("features", "") == "auto_http2") {
+    cluster.set_auto_http2(true);
+  }
+
   if (json_cluster.getString("features", "") == "http2" ||
+      json_cluster.getString("features", "") == "auto_http2" ||
       json_cluster.hasObject("http2_settings")) {
     ProtocolJson::translateHttp2ProtocolOptions(*json_cluster.getObject("http2_settings", true),
                                                 *cluster.mutable_http2_protocol_options());
