@@ -39,9 +39,12 @@ public:
 
     /**
      * @param socket the socket on which to apply options.
+     * @param bound 'true' if socket has already been bound. This call will first be made
+     *        before the socket is bound, and then may be called again if the socket is bound,
+     *        or if the options for a socket change.
      * @return true if succeeded, false otherwise.
      */
-    virtual bool setOptions(Socket& socket) const PURE;
+    virtual bool setOptions(Socket& socket, bool bound) const PURE;
 
     /**
      * @return bits that can be used to separate connections based on the options. Should return

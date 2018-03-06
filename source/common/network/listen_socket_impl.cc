@@ -29,7 +29,9 @@ void ListenSocketImpl::doBind() {
   }
 }
 
-TcpListenSocket::TcpListenSocket(const Address::InstanceConstSharedPtr& address, bool bind_to_port)
+TcpListenSocket::TcpListenSocket(const Address::InstanceConstSharedPtr& address,
+                                 const Network::Socket::OptionsSharedPtr& options,
+                                 bool bind_to_port)
     : ListenSocketImpl(address->socket(Address::SocketType::Stream), address) {
   RELEASE_ASSERT(fd_ != -1);
 
@@ -38,6 +40,9 @@ TcpListenSocket::TcpListenSocket(const Address::InstanceConstSharedPtr& address,
   RELEASE_ASSERT(rc != -1);
 
   if (bind_to_port) {
+    if (options && !options->setOptions(*this, false)) {
+      throw EnvoyException("TcpListenSocket: Setting socket options failed");
+    }
     doBind();
   }
 }

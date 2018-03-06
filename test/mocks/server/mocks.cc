@@ -58,7 +58,7 @@ MockHotRestart::~MockHotRestart() {}
 
 MockListenerComponentFactory::MockListenerComponentFactory()
     : socket_(std::make_shared<NiceMock<Network::MockListenSocket>>()) {
-  ON_CALL(*this, createListenSocket(_, _)).WillByDefault(Return(socket_));
+  ON_CALL(*this, createListenSocket(_, _, _)).WillByDefault(Return(socket_));
 }
 MockListenerComponentFactory::~MockListenerComponentFactory() {}
 
