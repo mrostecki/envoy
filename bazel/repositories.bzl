@@ -28,7 +28,12 @@ def _repository_impl(name, **kwargs):
             "Refusing to depend on Git tag %r for external dependency %r: use 'commit' instead."
             % (location["tag"], name))
 
-    if "commit" in location:
+    if "path" in location:  # Locally fetched tarball
+        native.new_local_repository(
+            name = name,
+            path = location["path"],
+            **kwargs)
+    elif "commit" in location:
         # Git repository at given commit ID. Add a BUILD file if requested.
         if "build_file" in kwargs:
             new_git_repository(
