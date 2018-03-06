@@ -28,7 +28,12 @@ def _repository_impl(name, **kwargs):
             "Refusing to depend on Git tag %r for external dependency %r: use 'commit' instead."
             % (location["tag"], name))
 
-    if "commit" in location:
+    if "path" in location:  # Locally fetched tarball
+        native.new_local_repository(
+            name = name,
+            path = location["path"],
+            **kwargs)
+    elif "commit" in location:
         # Git repository at given commit ID. Add a BUILD file if requested.
         if "build_file" in kwargs:
             new_git_repository(
@@ -111,7 +116,10 @@ def _python_deps():
 
 # Bazel native C++ dependencies. For the depedencies that doesn't provide autoconf/automake builds.
 def _cc_deps():
-    _repository_impl("grpc_httpjson_transcoding")
+    _repository_impl(
+        name = "grpc_httpjson_transcoding",
+        build_file = "@envoy//bazel/external:grpc-httpjson-transcoding.BUILD",
+    )
     native.bind(
         name = "path_matcher",
         actual = "@grpc_httpjson_transcoding//src:path_matcher",
@@ -125,10 +133,16 @@ def _go_deps(skip_targets):
     # Keep the skip_targets check around until Istio Proxy has stopped using
     # it to exclude the Go rules.
     if "io_bazel_rules_go" not in skip_targets:
-        _repository_impl("io_bazel_rules_go")
+        _repository_impl(
+            name = "io_bazel_rules_go",
+            build_file = "@envoy//bazel/external:rules-go.BUILD"
+        )
 
 def _envoy_api_deps():
-    _repository_impl("envoy_api")
+    _repository_impl(
+        name = "envoy_api",
+        build_file = "@envoy//bazel/external:envoy-api.BUILD",
+    )
 
     native.bind(
         name = "http_api_protos",
@@ -258,14 +272,20 @@ def _com_github_gcovr_gcovr():
     )
 
 def _io_opentracing_cpp():
-    _repository_impl("io_opentracing_cpp")
+    _repository_impl(
+        name = "io_opentracing_cpp",
+        build_file = "@envoy//bazel/external:opentracing-cpp.BUILD",
+    )
     native.bind(
         name = "opentracing",
         actual = "@io_opentracing_cpp//:opentracing",
     )
 
 def _com_lightstep_tracer_cpp():
-    _repository_impl("com_lightstep_tracer_cpp")
+    _repository_impl(
+        name = "com_lightstep_tracer_cpp",
+        build_file = "@envoy//bazel/external:lightstep-tracer-cpp.BUILD",
+    )
     _repository_impl(
         name = "lightstep_vendored_googleapis",
         build_file = "@com_lightstep_tracer_cpp//:lightstep-tracer-common/third_party/googleapis/BUILD",
@@ -296,14 +316,20 @@ def _com_github_nodejs_http_parser():
     )
 
 def _com_google_googletest():
-    _repository_impl("com_google_googletest")
+    _repository_impl(
+        name = "com_google_googletest",
+        build_file = "@envoy//bazel/external:googletest.BUILD",
+    )
     native.bind(
         name = "googletest",
         actual = "@com_google_googletest//:gtest",
     )
 
 def _com_google_absl():
-    _repository_impl("com_google_absl")
+    _repository_impl(
+        name = "com_google_absl",
+        build_file = "@envoy//bazel/external:abseil.BUILD",
+    )
     native.bind(
         name = "abseil_base",
         actual = "@com_google_absl//absl/base:base",
@@ -318,13 +344,20 @@ def _com_google_absl():
     )
 
 def _com_google_protobuf():
-    _repository_impl("com_google_protobuf")
+    _repository_impl(
+        name = "com_google_protobuf",
+        build_file = "@envoy//bazel/external:protobuf.BUILD",
+    )
 
     # Needed for cc_proto_library, Bazel doesn't support aliases today for repos,
     # see https://groups.google.com/forum/#!topic/bazel-discuss/859ybHQZnuI and
     # https://github.com/bazelbuild/bazel/issues/3219.
     location = REPOSITORY_LOCATIONS["com_google_protobuf"]
-    native.http_archive(name = "com_google_protobuf_cc", **location)
+    native.new_local_repository(
+        name = "com_google_protobuf_cc",
+        build_file = "@envoy//bazel/external:protobuf.BUILD",
+        **location
+    )
     native.bind(
         name = "protobuf",
         actual = "@com_google_protobuf//:protobuf",
@@ -335,7 +368,10 @@ def _com_google_protobuf():
     )
 
 def _com_github_grpc_grpc():
-    _repository_impl("com_github_grpc_grpc")
+    _repository_impl(
+        name = "com_github_grpc_grpc",
+        build_file = "@envoy//bazel/external:grpc.BUILD",
+    )
 
     # Rebind some stuff to match what the gRPC Bazel is expecting.
     native.bind(
