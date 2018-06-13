@@ -4,7 +4,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "ares",
-    srcs = ["thirdparty_build/lib/libcares.a"],
+    srcs = ["thirdparty_build/lib64/libcares.a"],
     hdrs = glob(["thirdparty_build/include/ares*.h"]),
     includes = ["thirdparty_build/include"],
 )
@@ -18,14 +18,14 @@ cc_library(
 
 cc_library(
     name = "event",
-    srcs = ["thirdparty_build/lib/libevent.a"],
+    srcs = ["thirdparty_build/lib64/libevent.a"],
     hdrs = glob(["thirdparty_build/include/event2/**/*.h"]),
     includes = ["thirdparty_build/include"],
 )
 
 cc_library(
     name = "event_pthreads",
-    srcs = ["thirdparty_build/lib/libevent_pthreads.a"],
+    srcs = ["thirdparty_build/lib64/libevent_pthreads.a"],
     deps = [":event"],
 )
 
@@ -40,14 +40,14 @@ cc_library(
 
 cc_library(
     name = "nghttp2",
-    srcs = ["thirdparty_build/lib/libnghttp2.a"],
+    srcs = ["thirdparty_build/lib64/libnghttp2.a"],
     hdrs = glob(["thirdparty_build/include/nghttp2/**/*.h"]),
     includes = ["thirdparty_build/include"],
 )
 
 cc_library(
     name = "tcmalloc_and_profiler",
-    srcs = ["thirdparty_build/lib/libtcmalloc_and_profiler.a"],
+    srcs = ["thirdparty_build/lib64/libtcmalloc_and_profiler.a"],
     hdrs = glob(["thirdparty_build/include/gperftools/**/*.h"]),
     strip_include_prefix = "thirdparty_build/include",
 )
