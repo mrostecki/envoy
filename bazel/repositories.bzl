@@ -212,7 +212,9 @@ def _go_deps(skip_targets):
     # Keep the skip_targets check around until Istio Proxy has stopped using
     # it to exclude the Go rules.
     if "io_bazel_rules_go" not in skip_targets:
+        _repository_impl("com_github_golang_protobuf")
         _repository_impl("io_bazel_rules_go")
+        _repository_impl("bazel_gazelle")
 
 def _envoy_api_deps():
     # Treat the data plane API as an external repo, this simplifies exporting the API to
