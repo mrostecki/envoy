@@ -4,13 +4,6 @@ REPOSITORY_LOCATIONS = dict(
         strip_prefix = "bazel-gazelle-0.14.0",
         urls = ["https://github.com/bazelbuild/bazel-gazelle/archive/0.14.0.tar.gz"],
     ),
-    boringssl = dict(
-        # Use commits from branch "chromium-stable-with-bazel"
-        sha256 = "d1700e0455f5f918f8a85ff3ce6cd684d05c766200ba6bdb18c77d5dcadc05a1",
-        strip_prefix = "boringssl-060e9a583976e73d1ea8b2bfe8b9cab33c62fa17",
-        # chromium-70.0.3538.67
-        urls = ["https://github.com/google/boringssl/archive/060e9a583976e73d1ea8b2bfe8b9cab33c62fa17.tar.gz"],
-    ),
     com_google_absl = dict(
         sha256 = "3f24d99cfa1b719ed51e12dae7741e4500a703e2c34bede452b457492d1fe36e",
         strip_prefix = "abseil-cpp-92e07e5590752d6b8e67f7f2f86c6286561e8cea",
@@ -91,12 +84,6 @@ REPOSITORY_LOCATIONS = dict(
         # From: https://github.com/lightstep/lightstep-tracer-cpp/blob/v0.8.0/lightstep-tracer-common/third_party/googleapis/README.lightstep-tracer-common#L6
         urls = ["https://github.com/googleapis/googleapis/archive/d6f78d948c53f3b400bb46996eb3084359914f9b.tar.gz"],
     ),
-    com_github_google_jwt_verify = dict(
-        sha256 = "499f1e145c19f33031eb8fc6452d5d391b4cecfdeda23e2055386a3b33be4d41",
-        strip_prefix = "jwt_verify_lib-66792a057ec54e4b75c6a2eeda4e98220bd12a9a",
-        # 2018-08-17
-        urls = ["https://github.com/google/jwt_verify_lib/archive/66792a057ec54e4b75c6a2eeda4e98220bd12a9a.tar.gz"],
-    ),
     com_github_nodejs_http_parser = dict(
         sha256 = "f742dc5a206958c4d0a6b2c35e3e102afb5683f55f7a7cb1eae024a03f081347",
         strip_prefix = "http-parser-77310eeb839c4251c07184a5db8885a572a08352",
@@ -150,12 +137,6 @@ REPOSITORY_LOCATIONS = dict(
         # - https://github.com/google/protobuf/commit/6a4fec616ec4b20f54d5fb530808b855cb664390
         # - https://github.com/google/protobuf/commit/fa252ec2a54acb24ddc87d48fed1ecfd458445fd
         urls = ["https://github.com/protocolbuffers/protobuf/archive/fa252ec2a54acb24ddc87d48fed1ecfd458445fd.tar.gz"],
-    ),
-    grpc_httpjson_transcoding = dict(
-        sha256 = "9765764644d74af9a9654f7fb90cf2bc7228014664668719a589a4677967ca09",
-        strip_prefix = "grpc-httpjson-transcoding-05a15e4ecd0244a981fdf0348a76658def62fa9c",
-        # 2018-05-30
-        urls = ["https://github.com/grpc-ecosystem/grpc-httpjson-transcoding/archive/05a15e4ecd0244a981fdf0348a76658def62fa9c.tar.gz"],
     ),
     com_github_golang_protobuf = dict(
         # TODO(sesmith177): Remove this dependency when both:

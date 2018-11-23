@@ -17,7 +17,10 @@ envoy_cc_library(
     srcs = ["json_transcoder_filter.cc"],
     hdrs = ["json_transcoder_filter.h"],
     external_deps = [
-        "path_matcher",
+        "abseil_base",
+        "abseil_optional",
+        "abseil_synchronization",
+        "abseil_time",
         "grpc_transcoding",
         "http_api_protos",
         "api_httpbody_protos",

@@ -62,3 +62,106 @@ cc_library(
     copts = [],
     linkopts = ["-lz"],
 )
+
+cc_library(
+    name = "ssl",
+    hdrs = glob([
+        "thirdparty_build/include/boringssl/**/*.h",
+    ]),
+    copts = ["-I/usr/include/boringssl"],
+    linkopts = ["-lboringssl_crypto", "-lboringssl_decrepit", "-lboringssl_ssl"],
+)
+
+cc_library(
+    name = "jwt_verify_lib",
+    hdrs = glob(["thirdparty_build/include/jwt_verify_lib/**/*.h"]),
+    copts = ["-I/usr/include/jwt_verify_lib"],
+    linkopts = ["-ljwt_verify_lib"],
+)
+
+cc_library(
+    name = "openssl",
+    hdrs = glob(["thirdparty_build/include/openssl/**/+.h"]),
+    copts = ["-DOPENSSL_LOAD_CONF"],
+    linkopts = ["-lssl", "-lcrypto"],
+)
+
+cc_library(
+    name = "abseil_any",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_bad_any_cast",
+        "-labsl_bad_optional_access",
+        "-labsl_optional",
+        "-labsl_variant"
+    ],
+)
+
+cc_library(
+    name = "abseil_base",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [],
+)
+
+cc_library(
+    name = "abseil_strings",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_strings"],
+)
+
+cc_library(
+    name = "abseil_int128",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_int128"],
+)
+
+cc_library(
+    name = "abseil_optional",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_optional"],
+)
+
+cc_library(
+    name = "abseil_synchronization",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_synchronization"],
+)
+
+cc_library(
+    name = "abseil_symbolize",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_symbolize"],
+)
+
+cc_library(
+    name = "abseil_time",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_time"],
+)
+
+cc_library(
+    name = "grpc_transcoding",
+    hdrs = glob(["thirdparty_build/include/grpc_transcoding/**/*.h"]),
+    copts = ["-I/usr/include/grpc_transcoding"],
+    linkopts = [
+        "-lhttp_template",
+        "-ljson_request_translator",
+        "-lmessage_reader",
+        "-lmessage_stream",
+        "-lpath_matcher",
+        "-lprefix_writer",
+        "-lrequest_message_translator",
+        "-lrequest_stream_translator",
+        "-lrequest_weaver",
+        "-lresponse_to_json_translator",
+        "-ltype_helper",
+    ],
+)

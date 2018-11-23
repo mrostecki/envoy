@@ -168,18 +168,6 @@ def _python_deps():
         build_file = "@envoy//bazel/external:twitter_common_finagle_thrift.BUILD",
     )
 
-# Bazel native C++ dependencies. For the dependencies that doesn't provide autoconf/automake builds.
-def _cc_deps():
-    _repository_impl("grpc_httpjson_transcoding")
-    native.bind(
-        name = "path_matcher",
-        actual = "@grpc_httpjson_transcoding//src:path_matcher",
-    )
-    native.bind(
-        name = "grpc_transcoding",
-        actual = "@grpc_httpjson_transcoding//src:transcoding",
-    )
-
 def _go_deps(skip_targets):
     # Keep the skip_targets check around until Istio Proxy has stopped using
     # it to exclude the Go rules.
@@ -268,7 +256,6 @@ def envoy_dependencies(path = "@envoy_deps//", skip_targets = []):
     # The long repo names (`com_github_fmtlib_fmt` instead of `fmtlib`) are
     # semi-standard in the Bazel community, intended to avoid both duplicate
     # dependencies and name conflicts.
-    _boringssl()
     _com_google_absl()
     _com_github_bombela_backward()
     _com_github_circonus_labs_libcircllhist()
@@ -281,7 +268,6 @@ def envoy_dependencies(path = "@envoy_deps//", skip_targets = []):
     _io_opentracing_cpp()
     _com_lightstep_tracer_cpp()
     _com_github_grpc_grpc()
-    _com_github_google_jwt_verify()
     _com_github_nanopb_nanopb()
     _com_github_nodejs_http_parser()
     _com_github_tencent_rapidjson()
@@ -292,16 +278,8 @@ def envoy_dependencies(path = "@envoy_deps//", skip_targets = []):
     _repository_impl("subpar")
 
     _python_deps()
-    _cc_deps()
     _go_deps(skip_targets)
     _envoy_api_deps()
-
-def _boringssl():
-    _repository_impl("boringssl")
-    native.bind(
-        name = "ssl",
-        actual = "@boringssl//:ssl",
-    )
 
 def _com_github_bombela_backward():
     _repository_impl(
@@ -434,41 +412,6 @@ def _com_google_googletest():
 # method for pure Bazel deps.
 def _com_google_absl():
     _repository_impl("com_google_absl")
-    native.bind(
-        name = "abseil_any",
-        actual = "@com_google_absl//absl/types:any",
-    )
-    native.bind(
-        name = "abseil_base",
-        actual = "@com_google_absl//absl/base:base",
-    )
-    native.bind(
-        name = "abseil_strings",
-        actual = "@com_google_absl//absl/strings:strings",
-    )
-    native.bind(
-        name = "abseil_int128",
-        actual = "@com_google_absl//absl/numeric:int128",
-    )
-    native.bind(
-        name = "abseil_optional",
-        actual = "@com_google_absl//absl/types:optional",
-    )
-    native.bind(
-        name = "abseil_synchronization",
-        actual = "@com_google_absl//absl/synchronization:synchronization",
-    )
-    native.bind(
-        name = "abseil_symbolize",
-        actual = "@com_google_absl//absl/debugging:symbolize",
-    )
-
-    # Require abseil_time as an indirect dependency as it is needed by the
-    # direct dependency jwt_verify_lib.
-    native.bind(
-        name = "abseil_time",
-        actual = "@com_google_absl//absl/time:time",
-    )
 
 def _com_google_protobuf():
     _repository_impl("com_google_protobuf")
@@ -506,7 +449,7 @@ def _com_github_grpc_grpc():
     )
     native.bind(
         name = "libssl",
-        actual = "//external:ssl",
+        actual = "//external:openssl",
     )
     native.bind(
         name = "cares",
@@ -532,14 +475,6 @@ def _com_github_nanopb_nanopb():
     native.bind(
         name = "nanopb",
         actual = "@com_github_nanopb_nanopb//:nanopb",
-    )
-
-def _com_github_google_jwt_verify():
-    _repository_impl("com_github_google_jwt_verify")
-
-    native.bind(
-        name = "jwt_verify_lib",
-        actual = "@com_github_google_jwt_verify//:jwt_verify_lib",
     )
 
 def _apply_dep_blacklist(ctxt, recipes):
