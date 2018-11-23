@@ -62,3 +62,243 @@ cc_library(
     copts = [],
     linkopts = ["-lz"],
 )
+
+cc_library(
+    name = "ssl",
+    hdrs = glob([
+        "thirdparty_build/include/boringssl/**/*.h",
+    ]),
+    copts = ["-I/usr/include/boringssl"],
+    linkopts = ["-lboringssl_crypto", "-lboringssl_decrepit", "-lboringssl_ssl"],
+)
+
+cc_library(
+    name = "jwt_verify_lib",
+    hdrs = glob(["thirdparty_build/include/jwt_verify_lib/**/*.h"]),
+    copts = ["-I/usr/include/jwt_verify_lib"],
+    linkopts = ["-ljwt_verify_lib"],
+)
+
+cc_library(
+    name = "openssl",
+    hdrs = glob(["thirdparty_build/include/openssl/**/+.h"]),
+    copts = ["-DOPENSSL_LOAD_CONF"],
+    linkopts = ["-lssl", "-lcrypto"],
+)
+
+cc_library(
+    name = "abseil_any",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_types_libbad_any_cast_impl"],
+)
+
+cc_library(
+    name = "abseil_base",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_base_libbase",
+        "-labsl_base_libdynamic_annotations",
+        "-labsl_base_libexception_safety_testing",
+        "-labsl_base_libmalloc_internal",
+        "-labsl_base_libspinlock_wait",
+        "-labsl_base_libthrow_delegate",
+        "-lgtest",
+    ],
+)
+
+cc_library(
+    name = "abseil_flat_hash_map",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_container_libhash_generator_testing",
+        "-labsl_container_libraw_hash_set",
+        "-labsl_hash_libcity",
+        "-labsl_hash_libhash",
+    ],
+)
+
+cc_library(
+    name = "abseil_flat_hash_set",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_container_libhash_generator_testing",
+        "-labsl_container_libraw_hash_set",
+        "-labsl_hash_libcity",
+        "-labsl_hash_libhash",
+    ],
+)
+
+cc_library(
+    name = "abseil_strings",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_strings_libinternal",
+        "-labsl_strings_libstr_format_internal",
+        "-labsl_strings_libstrings",
+    ],
+)
+
+cc_library(
+    name = "abseil_int128",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_numeric_libint128"],
+)
+
+cc_library(
+    name = "abseil_optional",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = ["-labsl_types_libbad_optional_access", "-labsl_types_liboptional"],
+)
+
+cc_library(
+    name = "abseil_synchronization",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_synchronization_libgraphcycles_internal",
+        "-labsl_synchronization_libper_thread_sem_test_common",
+        "-labsl_synchronization_libsynchronization",
+        "-lgtest",
+    ],
+)
+
+cc_library(
+    name = "abseil_symbolize",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_debugging_libdebugging_internal",
+        "-labsl_debugging_libdemangle_internal",
+        "-labsl_debugging_libstacktrace",
+        "-labsl_debugging_libsymbolize",
+    ],
+)
+
+cc_library(
+    name = "abseil_time",
+    hdrs = glob(["thirdparty_build/include/absl/**/*.h"]),
+    copts = ["-I/usr/include/absl"],
+    linkopts = [
+        "-labsl_time_internal_cctz_libcivil_time",
+        "-labsl_time_internal_cctz_libtime_zone",
+        "-labsl_time_libtest_util",
+        "-labsl_time_libtime",
+    ],
+)
+
+cc_library(
+    name = "grpc_transcoding",
+    hdrs = glob(["thirdparty_build/include/grpc_transcoding/**/*.h"]),
+    copts = ["-I/usr/include/grpc_transcoding"],
+    linkopts = [
+        "-lhttp_template",
+        "-ljson_request_translator",
+        "-lmessage_reader",
+        "-lmessage_stream",
+        "-lpath_matcher",
+        "-lprefix_writer",
+        "-lrequest_message_translator",
+        "-lrequest_stream_translator",
+        "-lrequest_weaver",
+        "-lresponse_to_json_translator",
+        "-ltype_helper",
+    ],
+)
+
+cc_library(
+    name = "fmtlib",
+    hdrs = glob(["thirdparty_build/include/fmt/**/*.h"]),
+    copts = ["-I/usr/include/fmt"],
+    linkopts = ["-lfmt"],
+)
+
+cc_library(
+    name = "spdlog",
+    hdrs = glob(["thirdparty_build/include/spdlog/**/*.h"]),
+    copts = ["-I/usr/include/spdlog"],
+    linkopts = [],
+)
+
+cc_library(
+    name = "backward",
+    hdrs = glob(["thirdparty_build/include/backward.hpp"]),
+    copts = [],
+    linkopts = [],
+)
+
+cc_library(
+    name = "dd_opentracing_cpp",
+    hdrs = glob(["thirdparty_build/include/datadog/**/*.h"]),
+    copts = ["-I/usr/include/datadog"],
+    linkopts = ["-ldd_opentracing"],
+)
+
+cc_library(
+    name = "opentracing",
+    hdrs = glob(["thirdparty_build/include/opentracing/**/*.h"]),
+    copts = ["-I/usr/include/opentracing"],
+    linkopts = ["-lopentracing", "-lopentracing_mocktracer"],
+)
+
+cc_library(
+    name = "lightstep",
+    hdrs = glob(["thirdparty_build/include/lightstep"]),
+    copts = ["-I/usr/include/lightstep"],
+    linkopts =  ["-llightstep_tracer"],
+)
+
+cc_library(
+    name = "http_parser",
+    hdrs = glob(["thirdparty_build/include/http_parser.h"]),
+    copts = [],
+    linkopts = ["-lhttp_parser"],
+)
+
+cc_library(
+    name = "libprotobuf_mutator",
+    hdrs = glob(["thirdparty_build/include/libprotobuf-mutator"]),
+    copts = ["-I/usr/include/libprotobuf-mutator"],
+    linkopts = ["-lprotobuf-mutator", "-lprotobuf-mutator-libfuzzer"],
+)
+
+cc_library(
+    name = "rapidjson",
+    hdrs = glob(["thirdparty_build/include/rapidjson/**/*.h"]),
+    copts = ["-I/usr/include/rapidjson"],
+    linkopts = [],
+)
+
+cc_library(
+    name = "tclap",
+    hdrs = glob(["thirdparty_build/include/tclap/**/*.h"]),
+    copts = ["-I/usr/include/tclap"],
+    linkopts = [],
+)
+
+cc_library(
+    name = "xxhash",
+    hdrs = glob(["thirdparty_build/include/xxhash.h"]),
+    copts = [],
+    linkopts = ["-lxxhash"],
+)
+
+cc_library(
+    name = "libcircllhist",
+    hdrs = glob(["thirdparty_build/include/circllhist.h"]),
+    copts = [],
+    linkopts = ["-lcircllhist"],
+)
+
+cc_library(
+    name = "googletest",
+    hdrs = glob(["thirdparty_build/include/gtest/**/*.h"]),
+    copts = ["-I/usr/include/gtest"],
+    linkopts = ["-lgtest", "-lgtest_main"],
+)

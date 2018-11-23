@@ -16,27 +16,18 @@ PROMETHEUS_SHA = "783bdaf8ee0464b35ec0c8704871e1e72afa0005c3f3587f65d9d6694bf391
 OPENCENSUS_GIT_SHA = "ab82e5fdec8267dc2a726544b10af97675970847"  # May 23, 2018
 OPENCENSUS_SHA = "1950f844d9f338ba731897a9bb526f9074c0487b3f274ce2ec3b4feaf0bef7e2"
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
 def api_dependencies():
-    http_archive(
+    native.local_repository(
         name = "bazel_skylib",
-        sha256 = BAZEL_SKYLIB_SHA256,
-        strip_prefix = "bazel-skylib-" + BAZEL_SKYLIB_RELEASE,
-        url = "https://github.com/bazelbuild/bazel-skylib/archive/" + BAZEL_SKYLIB_RELEASE + ".tar.gz",
+        path = "/usr/src/bazel-skylib",
     )
-    http_archive(
+    native.local_repository(
         name = "com_lyft_protoc_gen_validate",
-        sha256 = PGV_SHA256,
-        strip_prefix = "protoc-gen-validate-" + PGV_RELEASE,
-        url = "https://github.com/lyft/protoc-gen-validate/archive/v" + PGV_RELEASE + ".tar.gz",
+        path = "/usr/src/protoc-gen-validate",
     )
-    http_archive(
+    native.new_local_repository(
         name = "googleapis",
-        strip_prefix = "googleapis-" + GOOGLEAPIS_GIT_SHA,
-        url = "https://github.com/googleapis/googleapis/archive/" + GOOGLEAPIS_GIT_SHA + ".tar.gz",
-        # TODO(dio): Consider writing a Skylark macro for importing Google API proto.
-        sha256 = GOOGLEAPIS_SHA,
+        path = "/usr/src/googleapis",
         build_file_content = """
 load("@com_google_protobuf//:protobuf.bzl", "cc_proto_library", "py_proto_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
@@ -197,11 +188,9 @@ py_proto_library(
 """,
     )
 
-    http_archive(
+    native.new_local_repository(
         name = "com_github_gogo_protobuf",
-        sha256 = GOGOPROTO_SHA256,
-        strip_prefix = "protobuf-" + GOGOPROTO_RELEASE,
-        url = "https://github.com/gogo/protobuf/archive/v" + GOGOPROTO_RELEASE + ".tar.gz",
+        path = "/usr/src/protoc-gen-gogo",
         build_file_content = """
 load("@com_google_protobuf//:protobuf.bzl", "cc_proto_library", "py_proto_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
@@ -258,11 +247,9 @@ py_proto_library(
         """,
     )
 
-    http_archive(
+    native.new_local_repository(
         name = "prometheus_metrics_model",
-        strip_prefix = "client_model-" + PROMETHEUS_GIT_SHA,
-        url = "https://github.com/prometheus/client_model/archive/" + PROMETHEUS_GIT_SHA + ".tar.gz",
-        sha256 = PROMETHEUS_SHA,
+        path = "/usr/src/prometheus-client-model",
         build_file_content = """
 load("@envoy_api//bazel:api_build_system.bzl", "api_proto_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
@@ -284,11 +271,9 @@ go_proto_library(
         """,
     )
 
-    http_archive(
+    native.new_local_repository(
         name = "io_opencensus_trace",
-        strip_prefix = "opencensus-proto-" + OPENCENSUS_GIT_SHA + "/opencensus/proto/trace",
-        url = "https://github.com/census-instrumentation/opencensus-proto/archive/" + OPENCENSUS_GIT_SHA + ".tar.gz",
-        sha256 = OPENCENSUS_SHA,
+        path = "/usr/src/opencensus-proto",
         build_file_content = """
 load("@envoy_api//bazel:api_build_system.bzl", "api_proto_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")

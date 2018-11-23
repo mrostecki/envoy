@@ -50,7 +50,11 @@ envoy_cc_library(
     name = "envoy_main_entry_lib",
     srcs = ["main.cc"],
     external_deps = [
+        "abseil_base",
+        "abseil_optional",
+        "abseil_synchronization",
         "abseil_symbolize",
+        "abseil_time",
     ],
     deps = [
         ":envoy_main_common_lib",
