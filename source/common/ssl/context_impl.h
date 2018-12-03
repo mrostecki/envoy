@@ -11,7 +11,7 @@
 
 #include "common/ssl/context_manager_impl.h"
 
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 
 namespace Envoy {
 #ifndef OPENSSL_IS_BORINGSSL

@@ -14,7 +14,7 @@
 #include "common/ssl/utility.h"
 
 #include "absl/synchronization/mutex.h"
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 
 namespace Envoy {
 namespace Ssl {

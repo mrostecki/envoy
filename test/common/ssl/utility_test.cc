@@ -9,7 +9,7 @@
 #include "test/test_common/utility.h"
 
 #include "gtest/gtest.h"
-#include "openssl/x509v3.h"
+#include "boringssl/x509v3.h"
 
 namespace Envoy {
 namespace Ssl {

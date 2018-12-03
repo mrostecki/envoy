@@ -9,7 +9,7 @@
 #include "common/config/tls_context_json.h"
 #include "common/protobuf/utility.h"
 
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 
 namespace Envoy {
 namespace Ssl {

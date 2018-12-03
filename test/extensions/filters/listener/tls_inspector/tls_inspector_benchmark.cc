@@ -11,7 +11,7 @@
 #include "test/test_common/tls_utility.h"
 
 #include "gtest/gtest.h"
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 #include "testing/base/public/benchmark.h"
 
 using testing::_;

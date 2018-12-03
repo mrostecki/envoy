@@ -16,8 +16,8 @@
 
 #include "extensions/transport_sockets/well_known_names.h"
 
-#include "openssl/bytestring.h"
-#include "openssl/ssl.h"
+#include "boringssl/bytestring.h"
+#include "boringssl/ssl.h"
 
 namespace Envoy {
 namespace Extensions {

@@ -17,7 +17,7 @@
 #include "test/test_common/utility.h"
 
 #include "gtest/gtest.h"
-#include "openssl/x509v3.h"
+#include "boringssl/x509v3.h"
 
 using Envoy::Protobuf::util::MessageDifferencer;
 using testing::NiceMock;

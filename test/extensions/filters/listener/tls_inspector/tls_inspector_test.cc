@@ -7,7 +7,7 @@
 #include "test/test_common/tls_utility.h"
 
 #include "gtest/gtest.h"
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 
 using testing::_;
 using testing::AtLeast;

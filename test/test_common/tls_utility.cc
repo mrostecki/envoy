@@ -2,7 +2,7 @@
 
 #include "common/common/assert.h"
 
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 
 namespace Envoy {
 namespace Tls {

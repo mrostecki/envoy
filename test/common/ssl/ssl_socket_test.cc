@@ -30,7 +30,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 
 using testing::_;
 using testing::Invoke;

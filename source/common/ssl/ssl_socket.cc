@@ -9,8 +9,8 @@
 #include "common/ssl/utility.h"
 
 #include "absl/strings/str_replace.h"
-#include "openssl/err.h"
-#include "openssl/x509v3.h"
+#include "boringssl/err.h"
+#include "boringssl/x509v3.h"
 
 using Envoy::Network::PostIoAction;
 

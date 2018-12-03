@@ -3,7 +3,7 @@
 #include "common/common/assert.h"
 
 #include "absl/strings/str_join.h"
-#include "openssl/x509v3.h"
+#include "boringssl/x509v3.h"
 
 namespace Envoy {
 namespace Ssl {

@@ -6,8 +6,8 @@
 #include "test/test_common/environment.h"
 
 #include "gtest/gtest.h"
-#include "openssl/ssl.h"
-#include "openssl/x509v3.h"
+#include "boringssl/ssl.h"
+#include "boringssl/x509v3.h"
 
 namespace Envoy {
 namespace Ssl {

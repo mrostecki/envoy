@@ -16,9 +16,9 @@
 #include "common/protobuf/utility.h"
 #include "common/ssl/utility.h"
 
-#include "openssl/hmac.h"
-#include "openssl/rand.h"
-#include "openssl/x509v3.h"
+#include "boringssl/hmac.h"
+#include "boringssl/rand.h"
+#include "boringssl/x509v3.h"
 
 namespace Envoy {
 namespace Ssl {

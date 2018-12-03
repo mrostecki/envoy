@@ -18,7 +18,7 @@
 #include "common/filesystem/filesystem_impl.h"
 #include "common/protobuf/utility.h"
 
-#include "openssl/rand.h"
+#include "boringssl/rand.h"
 
 namespace Envoy {
 namespace Runtime {

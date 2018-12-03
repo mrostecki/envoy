@@ -5,7 +5,7 @@
 
 #include "common/common/utility.h"
 
-#include "openssl/ssl.h"
+#include "boringssl/ssl.h"
 
 namespace Envoy {
 namespace Ssl {
