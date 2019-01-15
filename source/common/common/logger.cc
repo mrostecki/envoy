@@ -50,7 +50,7 @@ void StderrSinkDelegate::flush() {
 
 void DelegatingLogSink::log(const spdlog::details::log_msg& msg) {
   if (!formatter_) {
-    sink_->log(fmt::to_string(msg.raw));
+    sink_->log(absl::string_view(msg.payload.data(), msg.payload.size()));
     return;
   }
 
