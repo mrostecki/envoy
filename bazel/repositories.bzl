@@ -118,9 +118,9 @@ def envoy_dependencies(skip_targets = []):
 
     # Setup external Bazel rules
     _foreign_cc_dependencies()
-    _rules_cc_dependencies()
-    _rules_java_dependencies()
     _rules_proto_dependencies()
+    _rules_apple()
+    _apple_support()
 
     # Binding to an alias pointing to the selected version of BoringSSL:
     # - BoringSSL FIPS from @boringssl_fips//:ssl,
@@ -166,6 +166,7 @@ def envoy_dependencies(skip_targets = []):
     _com_lightstep_tracer_cpp()
     _io_opentracing_cpp()
     _net_zlib()
+    _upb()
 
     # Used for bundling gcovr into a relocatable .par file.
     _repository_impl("subpar")
@@ -555,7 +556,7 @@ def _io_opencensus_cpp():
     location = REPOSITORY_LOCATIONS["io_opencensus_cpp"]
     http_archive(
         name = "io_opencensus_cpp",
-        patch_args = ["-p0"],
+        patch_args = ["-p1"],
         patches = ["@envoy//bazel/foreign_cc:io_opencensus_cpp.patch"],
         **location
     )
@@ -714,14 +715,23 @@ def _com_github_gperftools_gperftools():
 def _foreign_cc_dependencies():
     _repository_impl("rules_foreign_cc")
 
-def _rules_cc_dependencies():
-    _repository_impl("rules_cc")
-
-def _rules_java_dependencies():
-    _repository_impl("rules_java")
-
 def _rules_proto_dependencies():
     _repository_impl("rules_proto")
+
+def _upb():
+    location = REPOSITORY_LOCATIONS["upb"]
+    http_archive(
+        name = "upb",
+        patch_args = ["-p1"],
+        patches = ["@envoy//bazel/foreign_cc:upb.patch"],
+        **location
+    )
+
+def _rules_apple():
+    _repository_impl("build_bazel_rules_apple")
+
+def _apple_support():
+    _repository_impl("build_bazel_apple_support")
 
 def _is_linux(ctxt):
     return ctxt.os.name == "linux"
