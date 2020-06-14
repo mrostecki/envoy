@@ -241,8 +241,8 @@ REPOSITORY_LOCATIONS = dict(
         urls = ["https://github.com/grpc-ecosystem/grpc-httpjson-transcoding/archive/faf8af1e9788cd4385b94c8f85edab5ea5d4b2d6.tar.gz"],
     ),
     io_bazel_rules_go = dict(
-        sha256 = "e88471aea3a3a4f19ec1310a55ba94772d087e9ce46e41ae38ecebe17935de7b",
-        urls = ["https://github.com/bazelbuild/rules_go/releases/download/v0.20.3/rules_go-v0.20.3.tar.gz"],
+        sha256 = "a8d6b1b354d371a646d2f7927319974e0f9e52f73a2452d2b3877118169eb6bb",
+        urls = ["https://github.com/bazelbuild/rules_go/releases/download/v0.23.3/rules_go-v0.23.3.tar.gz"],
     ),
     rules_foreign_cc = dict(
         sha256 = "3184c244b32e65637a74213fc448964b687390eeeca42a36286f874c046bba15",
